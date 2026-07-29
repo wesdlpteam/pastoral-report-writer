@@ -1,0 +1,16 @@
+# Training material — real (de-identified) school report data, never commit
+Pastoral Report Writer/
+
+# Secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
