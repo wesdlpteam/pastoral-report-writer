@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pastoral Report Writing Companion</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>Pastoral Report Writing Companion</h1>
+    <p class="tagline">Answer a few quick questions, get a Wesley-style draft.</p>
+  </header>
+
+  <main class="app">
+    <section id="screen-select" class="screen">
+      <h2>Which report are you writing?</h2>
+      <div class="type-choices">
+        <button class="type-btn" data-type="tutor">
+          <span class="type-title">Tutor Report</span>
+          <span class="type-sub">Years 7&ndash;12 &middot; 100&ndash;150 words</span>
+        </button>
+        <button class="type-btn" data-type="pyp">
+          <span class="type-title">PYP Semester Report</span>
+          <span class="type-sub">Prep&ndash;6 &middot; 180&ndash;300 words</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="screen-question" class="screen hidden">
+      <p class="progress" id="progress-text"></p>
+      <h2 id="question-text"></h2>
+      <div class="chips" id="chip-container"></div>
+      <label class="freetext-label" for="freetext-input">Add specifics (optional)</label>
+      <textarea id="freetext-input" rows="3" placeholder="Type anything specific here..."></textarea>
+      <div class="nav-buttons">
+        <button id="back-btn" class="btn btn-secondary">Back</button>
+        <button id="next-btn" class="btn btn-primary">Next</button>
+        <button id="generate-btn" class="btn btn-primary hidden">Generate draft</button>
+      </div>
+    </section>
+
+    <section id="screen-result" class="screen hidden">
+      <h2>Draft comment</h2>
+      <p id="error-banner" class="error-banner hidden"></p>
+      <p id="loading-text" class="loading-text hidden">Writing your draft...</p>
+      <textarea id="draft-text" rows="10" class="hidden"></textarea>
+      <p class="word-count hidden" id="word-count-text"></p>
+      <div class="result-buttons">
+        <button id="regenerate-btn" class="btn btn-secondary hidden">Regenerate</button>
+        <button id="copy-btn" class="btn btn-primary hidden">Copy</button>
+        <button id="start-over-btn" class="btn btn-secondary">Start a new student</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
