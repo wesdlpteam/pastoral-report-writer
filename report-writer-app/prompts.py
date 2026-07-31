@@ -17,7 +17,9 @@ HALLUCINATION_GUARD = (
     "activities, or student details. Do not copy phrases from the "
     "examples provided. Instead, reshape the teacher's own language "
     "into Wesley's voice. If a teacher answer is empty or missing, "
-    "simply omit that topic from the report rather than inventing details."
+    "simply omit that topic from the report rather than inventing details. "
+    "DO weave in the student's Tutor Group and House context where natural "
+    "(e.g., 'Within [Tutor Group], [they...]', 'House [name] involvement')."
 )
 
 REPORT_RULES = {
