@@ -92,6 +92,8 @@ const QUESTIONS = {
 const state = {
   reportType: null,
   pronoun: null,
+  tutorGroup: null,
+  house: null,
   index: 0,
   answers: {},
   questionVariant: {},
@@ -99,6 +101,7 @@ const state = {
 
 const screenSelect = document.getElementById("screen-select");
 const screenPronoun = document.getElementById("screen-pronouns");
+const screenContext = document.getElementById("screen-context");
 const screenQuestion = document.getElementById("screen-question");
 const screenResult = document.getElementById("screen-result");
 
@@ -111,6 +114,9 @@ const skipBtn = document.getElementById("skip-btn");
 const nextBtn = document.getElementById("next-btn");
 const generateBtn = document.getElementById("generate-btn");
 const pronounNextBtn = document.getElementById("pronoun-next-btn");
+const contextNextBtn = document.getElementById("context-next-btn");
+const tutorGroupInput = document.getElementById("tutor-group-input");
+const houseInput = document.getElementById("house-input");
 
 const errorBanner = document.getElementById("error-banner");
 const loadingText = document.getElementById("loading-text");
@@ -150,12 +156,18 @@ pronounNextBtn.addEventListener("click", () => {
   if (state.pronoun === "other") {
     state.pronoun = customPronounInput.value || "they/them";
   }
+  showScreen(screenContext);
+});
+
+contextNextBtn.addEventListener("click", () => {
+  state.tutorGroup = tutorGroupInput.value.trim() || "(not specified)";
+  state.house = houseInput.value.trim() || "(not specified)";
   showScreen(screenQuestion);
   renderQuestion();
 });
 
 function showScreen(screen) {
-  [screenSelect, screenPronoun, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
+  [screenSelect, screenPronoun, screenContext, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
   screen.classList.remove("hidden");
 }
 
@@ -254,9 +266,13 @@ copyBtn.addEventListener("click", () => {
 startOverBtn.addEventListener("click", () => {
   state.reportType = null;
   state.pronoun = null;
+  state.tutorGroup = null;
+  state.house = null;
   state.index = 0;
   state.answers = {};
   state.questionVariant = {};
+  tutorGroupInput.value = "";
+  houseInput.value = "";
   document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));
   showScreen(screenSelect);
 });
@@ -283,6 +299,8 @@ async function generateDraft() {
       body: JSON.stringify({
         report_type: state.reportType,
         pronouns: state.pronoun,
+        tutor_group: state.tutorGroup,
+        house: state.house,
         answers: payloadAnswers,
       }),
     });

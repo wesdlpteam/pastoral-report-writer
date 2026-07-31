@@ -88,10 +88,22 @@ def build_system_prompt(report_type: str, pronouns: str = "they/them") -> str:
 
 
 def build_user_prompt(
-    report_type: str, answers: dict, pronouns: str = "they/them"
+    report_type: str,
+    answers: dict,
+    pronouns: str = "they/them",
+    tutor_group: str = None,
+    house: str = None,
 ) -> str:
     labels = ANSWER_LABELS[report_type]
     lines = [f"Teacher's notes about the student (using pronouns {pronouns}):"]
+    if tutor_group or house:
+        context_parts = []
+        if tutor_group and tutor_group != "(not specified)":
+            context_parts.append(f"Tutor Group: {tutor_group}")
+        if house and house != "(not specified)":
+            context_parts.append(f"House: {house}")
+        if context_parts:
+            lines.append(f"- Context: {', '.join(context_parts)}")
     for key, label in labels.items():
         value = str(answers.get(key, "")).strip()
         if value:

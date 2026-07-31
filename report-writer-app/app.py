@@ -20,6 +20,8 @@ def generate():
     data = request.get_json(silent=True) or {}
     report_type = data.get("report_type")
     pronouns = data.get("pronouns", "they/them")
+    tutor_group = data.get("tutor_group")
+    house = data.get("house")
     answers = data.get("answers")
 
     if report_type not in ["tutor", "pyp"]:
@@ -32,7 +34,9 @@ def generate():
         return jsonify({"error": "at least one answer required"}), 400
 
     system_prompt = build_system_prompt(report_type, pronouns)
-    user_prompt = build_user_prompt(report_type, answers, pronouns)
+    user_prompt = build_user_prompt(
+        report_type, answers, pronouns, tutor_group, house
+    )
 
     try:
         draft = generate_draft(system_prompt, user_prompt)
