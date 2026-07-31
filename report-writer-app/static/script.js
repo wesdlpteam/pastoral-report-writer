@@ -37,11 +37,11 @@ const QUESTIONS = {
     [
       {
         id: "next_steps",
-        question: "What's your goal or next step for them as a learner?",
+        question: "Has the student set any goals or talked about what they want to focus on next?",
       },
       {
         id: "next_steps",
-        question: "What study habit or strategy has helped them most?",
+        question: "What has been a highlight or memorable moment for this student this term?",
       },
     ],
   ],

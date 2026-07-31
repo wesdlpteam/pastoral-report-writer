@@ -28,12 +28,12 @@ REPORT_RULES = {
         "- character, resilience, personal qualities (consider ROAR values: "
         "Respect, Opportunity, Achievement, Resilience); (2) the student as "
         "a learner - academic wellbeing, progress, and approach to learning; "
-        "(3) the student as a participant in the Tutor Group - engagement, "
-        "contribution, House spirit; (4) a summarising, strengths-based, "
-        "future-focused closing sentence about their next steps. Use pronouns "
-        "{pronouns} throughout. Write in third person, past tense where "
-        'natural, and always refer to the student as "[student name]" - '
-        "never invent a real name."
+        "(3) achievements, participation, leadership, or House/cocurricular "
+        "involvement this term; (4) a forward-focused closing about their "
+        "goals or next steps for development. Use pronouns {pronouns} "
+        "throughout. Write in third person, past tense where natural, and "
+        'always refer to the student as "[student name]" - never invent '
+        "a real name."
     ),
     "pyp": (
         "You are drafting a Wesley College PYP (Prep-Year 6) Semester "
@@ -54,16 +54,16 @@ REPORT_RULES = {
 
 ANSWER_LABELS = {
     "tutor": {
-        "person": "The student as a person",
-        "learner": "The student as a learner",
-        "participant": "The student as a Tutor Group participant",
-        "summary": "Additional closing notes",
+        "person": "The student as a person (character, ROAR values, peer interaction)",
+        "learner": "The student as a learner (academic progress, approach to learning)",
+        "achievement": "Achievements, participation, or leadership this term",
+        "next_steps": "Student's goals or next focus area",
     },
     "pyp": {
-        "learner_social": "Who they are as a learner and socially",
-        "atl": "Approaches to Learning strength and example",
+        "learner_social": "Who they are as a learner and socially (Learner Profile)",
+        "atl": "Approaches to Learning strength with example",
         "achievement": "Achievement or participation example",
-        "next_steps": "Next steps for the student as a learner",
+        "next_steps": "Next steps for learning (how school and parents can support)",
     },
 }
 
