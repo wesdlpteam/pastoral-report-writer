@@ -27,28 +27,47 @@
       </div>
     </section>
 
+    <section id="screen-pronouns" class="screen hidden">
+      <h2>Student's pronouns</h2>
+      <div class="pronouns-options">
+        <button class="pronoun-btn" data-pronoun="they/them">They/Them (gender-neutral)</button>
+        <button class="pronoun-btn" data-pronoun="he/him">He/Him</button>
+        <button class="pronoun-btn" data-pronoun="she/her">She/Her</button>
+        <button class="pronoun-btn" data-pronoun="other">Other (I'll type it)</button>
+        <button class="pronoun-btn" data-pronoun="none">No pronouns (avoid pronouns)</button>
+      </div>
+      <div id="other-pronoun" class="hidden">
+        <label class="freetext-label" for="custom-pronoun">Enter pronouns:</label>
+        <input type="text" id="custom-pronoun" placeholder="e.g., ze/zir">
+      </div>
+      <div class="nav-buttons">
+        <button id="pronoun-next-btn" class="btn btn-primary" disabled>Next</button>
+      </div>
+    </section>
+
     <section id="screen-question" class="screen hidden">
       <p class="progress" id="progress-text"></p>
       <h2 id="question-text"></h2>
-      <div class="chips" id="chip-container"></div>
-      <label class="freetext-label" for="freetext-input">Add specifics (optional)</label>
-      <textarea id="freetext-input" rows="3" placeholder="Type anything specific here..."></textarea>
+      <label class="freetext-label" for="answer-input">Your answer:</label>
+      <textarea id="answer-input" rows="4" placeholder="Type what you know about this student..."></textarea>
       <div class="nav-buttons">
         <button id="back-btn" class="btn btn-secondary">Back</button>
+        <button id="another-btn" class="btn btn-secondary">Another question</button>
+        <button id="skip-btn" class="btn btn-secondary">Skip this</button>
         <button id="next-btn" class="btn btn-primary">Next</button>
         <button id="generate-btn" class="btn btn-primary hidden">Generate draft</button>
       </div>
     </section>
 
     <section id="screen-result" class="screen hidden">
-      <h2>Draft comment</h2>
+      <h2>Your draft report</h2>
+      <p class="sample-note">Edit as needed. Copy and paste into Word, then add student name.</p>
       <p id="error-banner" class="error-banner hidden"></p>
       <p id="loading-text" class="loading-text hidden">Writing your draft...</p>
       <textarea id="draft-text" rows="10" class="hidden"></textarea>
       <p class="word-count hidden" id="word-count-text"></p>
       <div class="result-buttons">
-        <button id="regenerate-btn" class="btn btn-secondary hidden">Regenerate</button>
-        <button id="copy-btn" class="btn btn-primary hidden">Copy</button>
+        <button id="copy-btn" class="btn btn-primary hidden">Copy to clipboard</button>
         <button id="start-over-btn" class="btn btn-secondary">Start a new student</button>
       </div>
     </section>

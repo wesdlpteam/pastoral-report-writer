@@ -10,12 +10,6 @@ from word_count import count_words, get_range, is_in_range
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
-REQUIRED_KEYS = {
-    "tutor": ["person", "learner", "participant"],
-    "pyp": ["learner_social", "atl", "achievement", "next_steps"],
-}
-
-
 @app.route("/")
 def index():
     return send_from_directory(app.static_folder, "index.html")
@@ -25,26 +19,20 @@ def index():
 def generate():
     data = request.get_json(silent=True) or {}
     report_type = data.get("report_type")
+    pronouns = data.get("pronouns", "they/them")
     answers = data.get("answers")
 
-    if report_type not in REQUIRED_KEYS:
+    if report_type not in ["tutor", "pyp"]:
         return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
     if not isinstance(answers, dict):
         return jsonify({"error": "answers must be an object"}), 400
 
-    missing = [
-        key
-        for key in REQUIRED_KEYS[report_type]
-        if not str(answers.get(key, "")).strip()
-    ]
-    if missing:
-        return (
-            jsonify({"error": f"missing required answers: {', '.join(missing)}"}),
-            400,
-        )
+    has_answer = any(str(v).strip() for v in answers.values())
+    if not has_answer:
+        return jsonify({"error": "at least one answer required"}), 400
 
-    system_prompt = build_system_prompt(report_type)
-    user_prompt = build_user_prompt(report_type, answers)
+    system_prompt = build_system_prompt(report_type, pronouns)
+    user_prompt = build_user_prompt(report_type, answers, pronouns)
 
     try:
         draft = generate_draft(system_prompt, user_prompt)

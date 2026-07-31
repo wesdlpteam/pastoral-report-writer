@@ -4,157 +4,158 @@ const API_URL = window.location.hostname === "localhost"
 
 const QUESTIONS = {
   tutor: [
-    {
-      id: "person",
-      question: "What's this student like as a person?",
-      chips: [
-        "Resilient",
-        "Quiet / reserved",
-        "Friendly and outgoing",
-        "Organised",
-        "Still building confidence",
-        "Kind to peers",
-        "Thoughtful / reflective",
-        "Good-humoured / personable",
-        "Respectful",
-        "Independent",
-      ],
-    },
-    {
-      id: "learner",
-      question: "How are they doing as a learner?",
-      chips: [
-        "Strong academic progress",
-        "Developing steadily",
-        "Needs more consistency",
-        "Asks great questions",
-        "Working hard to catch up",
-        "Shows growth mindset",
-        "Seeks feedback actively",
-        "Strong in specific subjects",
-        "Struggles with certain areas",
-        "Developing effective study habits",
-      ],
-    },
-    {
-      id: "participant",
-      question: "How do they take part in Tutor Group?",
-      chips: [
-        "Actively engaged",
-        "Quiet but present",
-        "Supportive of peers",
-        "Still settling in",
-        "Takes on a leadership role",
-        "Enthusiastic contributor",
-        "Reliable and dependable",
-        "Strong House spirit",
-        "Helps and encourages others",
-        "Consistently punctual",
-      ],
-    },
-    {
-      id: "summary",
-      question: "Anything else to add? (optional)",
-      chips: [],
-    },
+    [
+      {
+        id: "person",
+        question: "Tell me about this student as a person. Which ROAR values (Respect, Opportunity, Achievement, Resilience) stand out?",
+      },
+      {
+        id: "person",
+        question: "How do they interact with peers? What makes them a valued member of the Tutor Group?",
+      },
+    ],
+    [
+      {
+        id: "learner",
+        question: "How are they progressing academically? What's their approach to learning and seeking feedback?",
+      },
+      {
+        id: "learner",
+        question: "Where have they shown growth or resilience this term?",
+      },
+    ],
+    [
+      {
+        id: "achievement",
+        question: "What achievements, participation, or leadership stand out this term? (sports, music, House involvement, academic awards)",
+      },
+      {
+        id: "achievement",
+        question: "What cocurricular activities engage them? (sports, music, clubs, House events)",
+      },
+    ],
+    [
+      {
+        id: "next_steps",
+        question: "What's your goal or next step for them as a learner?",
+      },
+      {
+        id: "next_steps",
+        question: "What study habit or strategy has helped them most?",
+      },
+    ],
   ],
   pyp: [
-    {
-      id: "learner_social",
-      question: "Who are they as a learner and socially?",
-      chips: [
-        "Curious and inquisitive",
-        "Confident in social settings",
-        "Quiet but kind",
-        "Works well in groups",
-        "Prefers working independently",
-        "Shows growth mindset",
-        "Responds well to feedback",
-        "Intrinsically motivated",
-        "Friendly and approachable",
-        "Thoughtful and reflective",
-      ],
-    },
-    {
-      id: "atl",
-      question: "What's an Approaches to Learning strength, with an example?",
-      chips: [
-        "Strong thinking skills",
-        "Strong research skills",
-        "Strong communication skills",
-        "Strong social skills",
-        "Strong self-management skills",
-        "Creative problem-solving",
-        "Asks probing questions",
-        "Excellent collaboration",
-        "Organised and responsible",
-        "Persistent and resilient",
-      ],
-    },
-    {
-      id: "achievement",
-      question: "Any achievement or participation to highlight?",
-      chips: [
-        "Co-curricular activity",
-        "Camp / Education Outdoors",
-        "Passion project",
-        "Leadership role",
-        "Group task success",
-        "Award / recognition",
-        "Musical performance",
-        "Sports achievement",
-        "Academic excellence",
-        "Community contribution",
-      ],
-    },
-    {
-      id: "next_steps",
-      question: "What's the next step for them as a learner?",
-      chips: [],
-    },
+    [
+      {
+        id: "learner_social",
+        question: "Who are they as a learner and socially? Which Learner Profile attributes (Inquirer, Thinker, Communicator, etc.) show?",
+      },
+      {
+        id: "learner_social",
+        question: "How do they approach group work and collaboration?",
+      },
+    ],
+    [
+      {
+        id: "atl",
+        question: "What Approaches to Learning strength do they show? (thinking, research, communication, social, self-management) — give an example.",
+      },
+      {
+        id: "atl",
+        question: "When do they show the most curiosity or engagement?",
+      },
+    ],
+    [
+      {
+        id: "achievement",
+        question: "What achievement or participation stand out? (co-curricular, camp, project, leadership, group task)",
+      },
+      {
+        id: "achievement",
+        question: "What's one challenge they're working through, and how are they tackling it?",
+      },
+    ],
+    [
+      {
+        id: "next_steps",
+        question: "What's the next step for them as a learner? How can school and parents support this?",
+      },
+      {
+        id: "next_steps",
+        question: "What would help them grow in independence or confidence?",
+      },
+    ],
   ],
 };
 
 const state = {
   reportType: null,
+  pronoun: null,
   index: 0,
   answers: {},
-  selectedChips: {},
+  questionVariant: {},
 };
 
 const screenSelect = document.getElementById("screen-select");
+const screenPronoun = document.getElementById("screen-pronouns");
 const screenQuestion = document.getElementById("screen-question");
 const screenResult = document.getElementById("screen-result");
 
 const progressText = document.getElementById("progress-text");
 const questionText = document.getElementById("question-text");
-const chipContainer = document.getElementById("chip-container");
-const freetextInput = document.getElementById("freetext-input");
+const answerInput = document.getElementById("answer-input");
 const backBtn = document.getElementById("back-btn");
+const anotherBtn = document.getElementById("another-btn");
+const skipBtn = document.getElementById("skip-btn");
 const nextBtn = document.getElementById("next-btn");
 const generateBtn = document.getElementById("generate-btn");
+const pronounNextBtn = document.getElementById("pronoun-next-btn");
 
 const errorBanner = document.getElementById("error-banner");
 const loadingText = document.getElementById("loading-text");
 const draftText = document.getElementById("draft-text");
 const wordCountText = document.getElementById("word-count-text");
-const regenerateBtn = document.getElementById("regenerate-btn");
 const copyBtn = document.getElementById("copy-btn");
 const startOverBtn = document.getElementById("start-over-btn");
+const otherPronounDiv = document.getElementById("other-pronoun");
+const customPronounInput = document.getElementById("custom-pronoun");
 
 document.querySelectorAll(".type-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     state.reportType = btn.dataset.type;
     state.index = 0;
     state.answers = {};
-    state.selectedChips = {};
-    showScreen(screenQuestion);
-    renderQuestion();
+    state.questionVariant = {};
+    showScreen(screenPronoun);
   });
 });
 
+document.querySelectorAll(".pronoun-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    state.pronoun = btn.dataset.pronoun;
+
+    if (state.pronoun === "other") {
+      otherPronounDiv.classList.remove("hidden");
+    } else {
+      otherPronounDiv.classList.add("hidden");
+    }
+    pronounNextBtn.disabled = false;
+  });
+});
+
+pronounNextBtn.addEventListener("click", () => {
+  if (state.pronoun === "other") {
+    state.pronoun = customPronounInput.value || "they/them";
+  }
+  showScreen(screenQuestion);
+  renderQuestion();
+});
+
 function showScreen(screen) {
-  [screenSelect, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
+  [screenSelect, screenPronoun, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
   screen.classList.remove("hidden");
 }
 
@@ -162,28 +163,19 @@ function currentQuestions() {
   return QUESTIONS[state.reportType];
 }
 
+function currentQuestion() {
+  const questions = currentQuestions();
+  const variantIdx = state.questionVariant[state.index] || 0;
+  return questions[state.index][variantIdx];
+}
+
 function renderQuestion() {
   const questions = currentQuestions();
-  const q = questions[state.index];
+  const q = currentQuestion();
 
   progressText.textContent = `Question ${state.index + 1} of ${questions.length}`;
   questionText.textContent = q.question;
-
-  chipContainer.innerHTML = "";
-  const selected = state.selectedChips[q.id] || [];
-  q.chips.forEach((chipLabel) => {
-    const chipEl = document.createElement("button");
-    chipEl.type = "button";
-    chipEl.className = "chip";
-    chipEl.textContent = chipLabel;
-    if (selected.includes(chipLabel)) {
-      chipEl.classList.add("selected");
-    }
-    chipEl.addEventListener("click", () => toggleChip(q.id, chipLabel, chipEl));
-    chipContainer.appendChild(chipEl);
-  });
-
-  freetextInput.value = state.answers[`${q.id}__freetext`] || "";
+  answerInput.value = state.answers[q.id] || "";
 
   backBtn.classList.toggle("hidden", state.index === 0);
   const isLast = state.index === questions.length - 1;
@@ -191,68 +183,81 @@ function renderQuestion() {
   generateBtn.classList.toggle("hidden", !isLast);
 }
 
-function toggleChip(questionId, chipLabel, chipEl) {
-  const selected = state.selectedChips[questionId] || [];
-  const idx = selected.indexOf(chipLabel);
-  if (idx === -1) {
-    selected.push(chipLabel);
-    chipEl.classList.add("selected");
-  } else {
-    selected.splice(idx, 1);
-    chipEl.classList.remove("selected");
-  }
-  state.selectedChips[questionId] = selected;
-}
-
-function saveCurrentAnswer() {
-  const q = currentQuestions()[state.index];
-  state.answers[`${q.id}__freetext`] = freetextInput.value;
-  const chips = state.selectedChips[q.id] || [];
-  const freetext = freetextInput.value.trim();
-
-  let combined = "";
-  if (chips.length && freetext) {
-    combined = `${chips.join(", ")}. ${freetext}`;
-  } else if (chips.length) {
-    combined = chips.join(", ");
-  } else {
-    combined = freetext;
-  }
-  state.answers[q.id] = combined;
-}
+anotherBtn.addEventListener("click", () => {
+  const q = currentQuestion();
+  state.answers[q.id] = answerInput.value;
+  const questions = currentQuestions();
+  const variants = questions[state.index];
+  const currentVariant = state.questionVariant[state.index] || 0;
+  const nextVariant = (currentVariant + 1) % variants.length;
+  state.questionVariant[state.index] = nextVariant;
+  renderQuestion();
+});
 
 backBtn.addEventListener("click", () => {
-  saveCurrentAnswer();
+  const q = currentQuestion();
+  state.answers[q.id] = answerInput.value;
+  state.questionVariant[state.index] = 0;
   state.index -= 1;
   renderQuestion();
 });
 
+skipBtn.addEventListener("click", () => {
+  const q = currentQuestion();
+  state.answers[q.id] = "";
+  state.questionVariant[state.index] = 0;
+  state.index += 1;
+  if (state.index < currentQuestions().length) {
+    renderQuestion();
+  } else {
+    showScreen(screenResult);
+    generateDraft();
+  }
+});
+
 nextBtn.addEventListener("click", () => {
-  saveCurrentAnswer();
+  const q = currentQuestion();
+  const textValue = answerInput.value.trim();
+  if (!textValue) {
+    errorBanner.textContent = "Please enter text or skip this question.";
+    errorBanner.classList.remove("hidden");
+    return;
+  }
+  state.answers[q.id] = textValue;
+  state.questionVariant[state.index] = 0;
   state.index += 1;
   renderQuestion();
 });
 
 generateBtn.addEventListener("click", () => {
-  saveCurrentAnswer();
+  const q = currentQuestion();
+  const textValue = answerInput.value.trim();
+  if (!textValue) {
+    errorBanner.textContent = "Please enter text or skip this question.";
+    errorBanner.classList.remove("hidden");
+    return;
+  }
+  state.answers[q.id] = textValue;
   showScreen(screenResult);
-  generateDraft();
-});
-
-regenerateBtn.addEventListener("click", () => {
   generateDraft();
 });
 
 copyBtn.addEventListener("click", () => {
   draftText.select();
   navigator.clipboard.writeText(draftText.value);
+  copyBtn.textContent = "Copied!";
+  setTimeout(() => {
+    copyBtn.textContent = "Copy to clipboard";
+  }, 2000);
 });
 
 startOverBtn.addEventListener("click", () => {
   state.reportType = null;
+  state.pronoun = null;
   state.index = 0;
   state.answers = {};
-  state.selectedChips = {};
+  state.questionVariant = {};
+  document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));
   showScreen(screenSelect);
 });
 
@@ -260,12 +265,14 @@ async function generateDraft() {
   errorBanner.classList.add("hidden");
   draftText.classList.add("hidden");
   wordCountText.classList.add("hidden");
-  regenerateBtn.classList.add("hidden");
   copyBtn.classList.add("hidden");
   loadingText.classList.remove("hidden");
 
   const payloadAnswers = {};
-  currentQuestions().forEach((q) => {
+  const questions = currentQuestions();
+  questions.forEach((variantGroup, idx) => {
+    const variantIdx = state.questionVariant[idx] || 0;
+    const q = variantGroup[variantIdx];
     payloadAnswers[q.id] = state.answers[q.id] || "";
   });
 
@@ -273,7 +280,11 @@ async function generateDraft() {
     const response = await fetch(`${API_URL}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ report_type: state.reportType, answers: payloadAnswers }),
+      body: JSON.stringify({
+        report_type: state.reportType,
+        pronouns: state.pronoun,
+        answers: payloadAnswers,
+      }),
     });
     const body = await response.json();
 
@@ -288,7 +299,6 @@ async function generateDraft() {
 
     draftText.classList.remove("hidden");
     wordCountText.classList.remove("hidden");
-    regenerateBtn.classList.remove("hidden");
     copyBtn.classList.remove("hidden");
   } catch (err) {
     errorBanner.textContent = err.message;
