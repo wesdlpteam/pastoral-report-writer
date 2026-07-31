@@ -1,3 +1,7 @@
+const API_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://pastoral-report-writer.vercel.app";
+
 const QUESTIONS = {
   tutor: [
     {
@@ -237,7 +241,7 @@ async function generateDraft() {
   });
 
   try {
-    const response = await fetch("/api/generate", {
+    const response = await fetch(`${API_URL}/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ report_type: state.reportType, answers: payloadAnswers }),
