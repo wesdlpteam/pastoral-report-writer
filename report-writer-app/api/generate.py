@@ -43,6 +43,9 @@ def handler(request):
 
     report_type = data.get("report_type")
     answers = data.get("answers")
+    pronouns = data.get("pronouns", "they/them")
+    tutor_group = data.get("tutor_group")
+    house = data.get("house")
 
     if report_type not in REQUIRED_KEYS:
         return {
@@ -70,8 +73,8 @@ def handler(request):
             "body": json.dumps({"error": f"missing required answers: {', '.join(missing)}"}),
         }
 
-    system_prompt = build_system_prompt(report_type)
-    user_prompt = build_user_prompt(report_type, answers)
+    system_prompt = build_system_prompt(report_type, pronouns)
+    user_prompt = build_user_prompt(report_type, answers, pronouns, tutor_group, house)
 
     try:
         draft = generate_draft(system_prompt, user_prompt)
