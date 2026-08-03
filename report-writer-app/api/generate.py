@@ -7,6 +7,7 @@ from flask import Flask, jsonify, request
 
 from openai_client import DraftGenerationError, generate_draft
 from prompts import build_system_prompt, build_user_prompt
+from tone_guide import find_tempered_words
 from word_count import count_words, get_range, is_in_range
 
 
@@ -60,5 +61,6 @@ def generate():
             "word_count": word_count,
             "in_range": is_in_range(word_count, report_type),
             "target_range": [low, high],
+            "tempered_words": find_tempered_words(answers),
         }
     )

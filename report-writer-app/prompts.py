@@ -1,5 +1,6 @@
 from word_count import get_range
 from style_examples import TUTOR_EXAMPLES
+from tone_guide import TONE_GUARD
 
 STYLE_GUIDE_NOTES = (
     "Follow Wesley College's editorial style: no contractions (write "
@@ -78,7 +79,7 @@ ANSWER_LABELS = {
 def build_system_prompt(report_type: str, pronouns: str = "they/them") -> str:
     low, high = get_range(report_type)
     rules = REPORT_RULES[report_type].format(low=low, high=high, pronouns=pronouns)
-    parts = [HALLUCINATION_GUARD, CONTEXT_REQUIREMENT, rules, STYLE_GUIDE_NOTES]
+    parts = [HALLUCINATION_GUARD, CONTEXT_REQUIREMENT, rules, STYLE_GUIDE_NOTES, TONE_GUARD]
 
     if report_type == "tutor":
         examples_block = "\n\n".join(
