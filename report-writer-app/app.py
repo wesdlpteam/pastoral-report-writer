@@ -24,6 +24,7 @@ def generate():
     tutor_group = data.get("tutor_group")
     house = data.get("house")
     answers = data.get("answers")
+    adjust = data.get("adjust")
 
     if report_type not in ["tutor", "pyp"]:
         return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
@@ -36,7 +37,7 @@ def generate():
 
     system_prompt = build_system_prompt(report_type, pronouns)
     user_prompt = build_user_prompt(
-        report_type, answers, pronouns, tutor_group, house
+        report_type, answers, pronouns, tutor_group, house, adjust
     )
 
     try:

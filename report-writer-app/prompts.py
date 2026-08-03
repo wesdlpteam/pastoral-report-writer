@@ -101,6 +101,7 @@ def build_user_prompt(
     pronouns: str = "they/them",
     tutor_group: str = None,
     house: str = None,
+    adjust: str = None,
 ) -> str:
     labels = ANSWER_LABELS[report_type]
     lines = [f"Teacher's notes about the student (using pronouns {pronouns}):"]
@@ -123,4 +124,19 @@ def build_user_prompt(
         else:
             lines.append(f"- {label}: (not provided)")
     lines.append("\nWrite the report comment now, following the rules above exactly.")
+
+    if adjust == "shorter":
+        lines.append(
+            "\nIMPORTANT: Your previous draft was too long. Write this "
+            "version noticeably shorter while keeping the same meaning "
+            "and covering all required themes."
+        )
+    elif adjust == "longer":
+        lines.append(
+            "\nIMPORTANT: Your previous draft was too short. Write this "
+            "version noticeably longer while keeping the same meaning "
+            "and covering all required themes, adding relevant detail "
+            "from the teacher's notes above."
+        )
+
     return "\n".join(lines)
