@@ -1,8 +1,9 @@
-import json
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from flask import Flask, jsonify, request
 
 from openai_client import DraftGenerationError, generate_draft
 from prompts import build_system_prompt, build_user_prompt
@@ -14,33 +15,23 @@ REQUIRED_KEYS = {
     "pyp": ["learner_social", "atl", "achievement", "next_steps"],
 }
 
+app = Flask(__name__)
 
-def handler(request):
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
+
+
+@app.route("/api/generate", methods=["POST", "OPTIONS"])
+def generate():
     if request.method == "OPTIONS":
-        return {
-            "statusCode": 200,
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type",
-            },
-        }
+        return "", 200
 
-    if request.method != "POST":
-        return {
-            "statusCode": 405,
-            "body": json.dumps({"error": "Method not allowed"}),
-        }
-
-    try:
-        data = json.loads(request.body) if isinstance(request.body, str) else request.body
-    except (json.JSONDecodeError, TypeError):
-        return {
-            "statusCode": 400,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({"error": "Invalid JSON"}),
-        }
-
+    data = request.get_json(silent=True) or {}
     report_type = data.get("report_type")
     answers = data.get("answers")
     pronouns = data.get("pronouns", "they/them")
@@ -48,18 +39,10 @@ def handler(request):
     house = data.get("house")
 
     if report_type not in REQUIRED_KEYS:
-        return {
-            "statusCode": 400,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({"error": "report_type must be 'tutor' or 'pyp'"}),
-        }
+        return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
 
     if not isinstance(answers, dict):
-        return {
-            "statusCode": 400,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({"error": "answers must be an object"}),
-        }
+        return jsonify({"error": "answers must be an object"}), 400
 
     missing = [
         key
@@ -67,11 +50,7 @@ def handler(request):
         if not str(answers.get(key, "")).strip()
     ]
     if missing:
-        return {
-            "statusCode": 400,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({"error": f"missing required answers: {', '.join(missing)}"}),
-        }
+        return jsonify({"error": f"missing required answers: {', '.join(missing)}"}), 400
 
     system_prompt = build_system_prompt(report_type, pronouns)
     user_prompt = build_user_prompt(report_type, answers, pronouns, tutor_group, house)
@@ -79,27 +58,16 @@ def handler(request):
     try:
         draft = generate_draft(system_prompt, user_prompt)
     except DraftGenerationError as exc:
-        return {
-            "statusCode": 502,
-            "headers": {"Access-Control-Allow-Origin": "*"},
-            "body": json.dumps({"error": str(exc)}),
-        }
+        return jsonify({"error": str(exc)}), 502
 
     word_count = count_words(draft)
     low, high = get_range(report_type)
 
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-        },
-        "body": json.dumps(
-            {
-                "draft": draft,
-                "word_count": word_count,
-                "in_range": is_in_range(word_count, report_type),
-                "target_range": [low, high],
-            }
-        ),
-    }
+    return jsonify(
+        {
+            "draft": draft,
+            "word_count": word_count,
+            "in_range": is_in_range(word_count, report_type),
+            "target_range": [low, high],
+        }
+    )
