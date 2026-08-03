@@ -10,11 +10,6 @@ from prompts import build_system_prompt, build_user_prompt
 from word_count import count_words, get_range, is_in_range
 
 
-REQUIRED_KEYS = {
-    "tutor": ["person", "learner", "participant"],
-    "pyp": ["learner_social", "atl", "achievement", "next_steps"],
-}
-
 app = Flask(__name__)
 
 
@@ -38,19 +33,15 @@ def generate():
     tutor_group = data.get("tutor_group")
     house = data.get("house")
 
-    if report_type not in REQUIRED_KEYS:
+    if report_type not in ["tutor", "pyp"]:
         return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
 
     if not isinstance(answers, dict):
         return jsonify({"error": "answers must be an object"}), 400
 
-    missing = [
-        key
-        for key in REQUIRED_KEYS[report_type]
-        if not str(answers.get(key, "")).strip()
-    ]
-    if missing:
-        return jsonify({"error": f"missing required answers: {', '.join(missing)}"}), 400
+    has_answer = any(str(v).strip() for v in answers.values())
+    if not has_answer:
+        return jsonify({"error": "at least one answer required"}), 400
 
     system_prompt = build_system_prompt(report_type, pronouns)
     user_prompt = build_user_prompt(report_type, answers, pronouns, tutor_group, house)
