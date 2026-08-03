@@ -242,6 +242,7 @@ input[type="text"]:focus {
 .pronoun-btn:focus-visible,
 .chip:focus-visible,
 .btn:focus-visible,
+.btn-link:focus-visible,
 textarea:focus-visible,
 input[type="text"]:focus-visible {
   outline: 3px solid var(--wes-gold);
@@ -289,6 +290,83 @@ input[type="text"]:focus-visible {
   padding: 0.75rem 1rem;
   border-radius: 4px;
   font-size: 0.9rem;
+}
+
+.resume-banner {
+  background: var(--wes-tint-amber);
+  color: var(--wes-ink-gold);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: var(--space-lg);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--wes-purple);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: var(--wes-font-ui);
+  font-size: inherit;
+  margin-right: var(--space-md);
+}
+
+.btn-link:hover {
+  color: var(--wes-neutral-900);
+}
+
+.context-hint {
+  color: var(--wes-purple);
+  font-size: 0.9rem;
+  margin-top: var(--space-sm);
+}
+
+.notes-details {
+  margin-top: var(--space-lg);
+  border: 2px solid var(--wes-neutral-300);
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.notes-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--wes-purple);
+}
+
+.notes-list {
+  margin: var(--space-sm) 0 0;
+}
+
+.notes-list dt {
+  font-weight: 600;
+  margin-top: var(--space-sm);
+}
+
+.notes-list dt:first-child {
+  margin-top: 0;
+}
+
+.notes-list dd {
+  margin-left: 0;
+  color: var(--wes-neutral-900);
+}
+
+.adjust-buttons {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.checklist-note {
+  background: var(--wes-neutral-200);
+  color: var(--wes-neutral-900);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  margin-top: var(--space-lg);
 }
 
 .word-count {

@@ -19,6 +19,11 @@
   <main class="app">
    <div class="card">
     <section id="screen-select" class="screen">
+      <p id="resume-banner" class="resume-banner hidden">
+        You have an unfinished report saved.
+        <button id="resume-btn" class="btn-link">Resume it</button>
+        <button id="discard-resume-btn" class="btn-link">Start fresh instead</button>
+      </p>
       <h2>Which report are you writing?</h2>
       <div class="type-choices">
         <button class="type-btn" data-type="tutor">
@@ -52,6 +57,7 @@
 
     <section id="screen-context" class="screen hidden">
       <h2>Student's Tutor Group and House</h2>
+      <p id="context-remembered-note" class="context-hint hidden">Prefilled from your last student, change if this one's different.</p>
       <div style="margin-top: 1.5rem;">
         <label class="freetext-label" for="tutor-group-input">Tutor Group (e.g., 7A, 11D):</label>
         <input type="text" id="tutor-group-input" placeholder="e.g., 7A" style="margin-top: 0.5rem;">
@@ -79,15 +85,26 @@
     </section>
 
     <section id="screen-result" class="screen hidden">
-      <h2>Your draft report</h2>
+      <h2>Draft based on your notes</h2>
       <p class="sample-note">Edit as needed. Copy and paste into Word, then add student name.</p>
       <p id="error-banner" class="error-banner hidden"></p>
       <p id="loading-text" class="loading-text hidden">Writing your draft...</p>
       <p id="tone-note" class="tone-note hidden"></p>
+      <details id="notes-details" class="notes-details hidden">
+        <summary>Show my notes</summary>
+        <dl id="notes-list" class="notes-list"></dl>
+      </details>
       <textarea id="draft-text" rows="10" class="hidden"></textarea>
       <p class="word-count hidden" id="word-count-text"></p>
+      <div class="adjust-buttons">
+        <button id="shorten-btn" class="btn btn-secondary hidden">Make it shorter</button>
+        <button id="lengthen-btn" class="btn btn-secondary hidden">Make it longer</button>
+      </div>
+      <p id="checklist-note" class="checklist-note hidden">Before you copy: add the student's name, and double-check the pronouns are right.</p>
       <div class="result-buttons">
         <button id="copy-btn" class="btn btn-primary hidden">Copy to clipboard</button>
+        <button id="regenerate-btn" class="btn btn-secondary hidden">Regenerate</button>
+        <button id="use-previous-btn" class="btn btn-secondary hidden">Use previous draft</button>
         <button id="start-over-btn" class="btn btn-secondary">Start a new student</button>
       </div>
     </section>

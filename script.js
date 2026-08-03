@@ -2,6 +2,10 @@ const API_URL = window.location.hostname === "localhost"
   ? "http://localhost:5000"
   : "https://pastoral-report-writer.vercel.app";
 
+const LS_TUTOR_GROUP = "pastoralLastTutorGroup";
+const LS_HOUSE = "pastoralLastHouse";
+const LS_AUTOSAVE = "pastoralAutosave";
+
 const QUESTIONS = {
   tutor: [
     [
@@ -97,6 +101,8 @@ const state = {
   index: 0,
   answers: {},
   questionVariant: {},
+  previousDraft: null,
+  lastTargetRange: null,
 };
 
 const screenSelect = document.getElementById("screen-select");
@@ -117,13 +123,25 @@ const pronounNextBtn = document.getElementById("pronoun-next-btn");
 const contextNextBtn = document.getElementById("context-next-btn");
 const tutorGroupInput = document.getElementById("tutor-group-input");
 const houseInput = document.getElementById("house-input");
+const contextRememberedNote = document.getElementById("context-remembered-note");
+
+const resumeBanner = document.getElementById("resume-banner");
+const resumeBtn = document.getElementById("resume-btn");
+const discardResumeBtn = document.getElementById("discard-resume-btn");
 
 const errorBanner = document.getElementById("error-banner");
 const loadingText = document.getElementById("loading-text");
 const toneNote = document.getElementById("tone-note");
+const notesDetails = document.getElementById("notes-details");
+const notesList = document.getElementById("notes-list");
 const draftText = document.getElementById("draft-text");
 const wordCountText = document.getElementById("word-count-text");
+const shortenBtn = document.getElementById("shorten-btn");
+const lengthenBtn = document.getElementById("lengthen-btn");
+const checklistNote = document.getElementById("checklist-note");
 const copyBtn = document.getElementById("copy-btn");
+const regenerateBtn = document.getElementById("regenerate-btn");
+const usePreviousBtn = document.getElementById("use-previous-btn");
 const startOverBtn = document.getElementById("start-over-btn");
 const otherPronounDiv = document.getElementById("other-pronoun");
 const customPronounInput = document.getElementById("custom-pronoun");
@@ -136,6 +154,47 @@ function setProgress(stepIndex) {
   const pct = Math.min(1, Math.max(0, stepIndex / TOTAL_STEPS));
   progressFill.style.transform = `scaleX(${pct})`;
   progressTrack.setAttribute("aria-valuenow", Math.round(pct * 100));
+}
+
+function saveAutosave() {
+  if (!state.reportType) return;
+  localStorage.setItem(
+    LS_AUTOSAVE,
+    JSON.stringify({
+      reportType: state.reportType,
+      pronoun: state.pronoun,
+      tutorGroup: state.tutorGroup,
+      house: state.house,
+      index: state.index,
+      answers: state.answers,
+      questionVariant: state.questionVariant,
+    })
+  );
+}
+
+function clearAutosave() {
+  localStorage.removeItem(LS_AUTOSAVE);
+}
+
+function loadAutosave() {
+  try {
+    const raw = localStorage.getItem(LS_AUTOSAVE);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function prefillContext() {
+  const savedTutorGroup = localStorage.getItem(LS_TUTOR_GROUP);
+  const savedHouse = localStorage.getItem(LS_HOUSE);
+  if (savedTutorGroup || savedHouse) {
+    tutorGroupInput.value = savedTutorGroup || "";
+    houseInput.value = savedHouse || "";
+    contextRememberedNote.classList.remove("hidden");
+  } else {
+    contextRememberedNote.classList.add("hidden");
+  }
 }
 
 document.querySelectorAll(".type-btn").forEach((btn) => {
@@ -168,6 +227,7 @@ pronounNextBtn.addEventListener("click", () => {
   if (state.pronoun === "other") {
     state.pronoun = customPronounInput.value || "they/them";
   }
+  prefillContext();
   showScreen(screenContext);
   setProgress(2);
 });
@@ -175,8 +235,15 @@ pronounNextBtn.addEventListener("click", () => {
 contextNextBtn.addEventListener("click", () => {
   state.tutorGroup = tutorGroupInput.value.trim() || "(not specified)";
   state.house = houseInput.value.trim() || "(not specified)";
+  if (state.tutorGroup !== "(not specified)") {
+    localStorage.setItem(LS_TUTOR_GROUP, state.tutorGroup);
+  }
+  if (state.house !== "(not specified)") {
+    localStorage.setItem(LS_HOUSE, state.house);
+  }
   showScreen(screenQuestion);
   renderQuestion();
+  saveAutosave();
 });
 
 function showScreen(screen) {
@@ -219,6 +286,7 @@ anotherBtn.addEventListener("click", () => {
   const nextVariant = (currentVariant + 1) % variants.length;
   state.questionVariant[state.index] = nextVariant;
   renderQuestion();
+  saveAutosave();
 });
 
 backBtn.addEventListener("click", () => {
@@ -227,6 +295,7 @@ backBtn.addEventListener("click", () => {
   state.questionVariant[state.index] = 0;
   state.index -= 1;
   renderQuestion();
+  saveAutosave();
 });
 
 skipBtn.addEventListener("click", () => {
@@ -236,6 +305,7 @@ skipBtn.addEventListener("click", () => {
   state.index += 1;
   if (state.index < currentQuestions().length) {
     renderQuestion();
+    saveAutosave();
   } else {
     showScreen(screenResult);
     setProgress(TOTAL_STEPS);
@@ -255,6 +325,7 @@ nextBtn.addEventListener("click", () => {
   state.questionVariant[state.index] = 0;
   state.index += 1;
   renderQuestion();
+  saveAutosave();
 });
 
 generateBtn.addEventListener("click", () => {
@@ -271,6 +342,30 @@ generateBtn.addEventListener("click", () => {
   generateDraft();
 });
 
+regenerateBtn.addEventListener("click", () => {
+  generateDraft();
+});
+
+shortenBtn.addEventListener("click", () => {
+  generateDraft("shorter");
+});
+
+lengthenBtn.addEventListener("click", () => {
+  generateDraft("longer");
+});
+
+usePreviousBtn.addEventListener("click", () => {
+  if (!state.previousDraft) return;
+  const current = {
+    draft: draftText.value,
+    wordCount: parseInt(wordCountText.textContent, 10) || 0,
+    targetRange: state.lastTargetRange,
+    inRange: wordCountText.classList.contains("in-range"),
+  };
+  applyDraftResult(state.previousDraft);
+  state.previousDraft = current;
+});
+
 copyBtn.addEventListener("click", () => {
   draftText.select();
   navigator.clipboard.writeText(draftText.value);
@@ -278,6 +373,26 @@ copyBtn.addEventListener("click", () => {
   setTimeout(() => {
     copyBtn.textContent = "Copy to clipboard";
   }, 2000);
+});
+
+resumeBtn.addEventListener("click", () => {
+  const saved = loadAutosave();
+  resumeBanner.classList.add("hidden");
+  if (!saved) return;
+  state.reportType = saved.reportType;
+  state.pronoun = saved.pronoun;
+  state.tutorGroup = saved.tutorGroup;
+  state.house = saved.house;
+  state.index = saved.index;
+  state.answers = saved.answers;
+  state.questionVariant = saved.questionVariant;
+  showScreen(screenQuestion);
+  renderQuestion();
+});
+
+discardResumeBtn.addEventListener("click", () => {
+  clearAutosave();
+  resumeBanner.classList.add("hidden");
 });
 
 startOverBtn.addEventListener("click", () => {
@@ -288,20 +403,75 @@ startOverBtn.addEventListener("click", () => {
   state.index = 0;
   state.answers = {};
   state.questionVariant = {};
-  tutorGroupInput.value = "";
-  houseInput.value = "";
+  state.previousDraft = null;
+  state.lastTargetRange = null;
   document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));
+  regenerateBtn.classList.add("hidden");
+  usePreviousBtn.classList.add("hidden");
+  shortenBtn.classList.add("hidden");
+  lengthenBtn.classList.add("hidden");
+  checklistNote.classList.add("hidden");
+  notesDetails.classList.add("hidden");
+  resumeBanner.classList.add("hidden");
+  clearAutosave();
   showScreen(screenSelect);
   setProgress(0);
 });
 
-async function generateDraft() {
+function applyDraftResult(result) {
+  draftText.value = result.draft;
+  wordCountText.textContent = `${result.wordCount} words (target: ${result.targetRange[0]}-${result.targetRange[1]})`;
+  wordCountText.classList.toggle("in-range", result.inRange);
+  wordCountText.classList.toggle("out-of-range", !result.inRange);
+  state.lastTargetRange = result.targetRange;
+  updateAdjustButtons(result);
+}
+
+function updateAdjustButtons(result) {
+  const tooLong = !result.inRange && result.wordCount > result.targetRange[1];
+  const tooShort = !result.inRange && result.wordCount < result.targetRange[0];
+  shortenBtn.classList.toggle("hidden", !tooLong);
+  lengthenBtn.classList.toggle("hidden", !tooShort);
+}
+
+function renderNotesList(payloadAnswers) {
+  const questions = currentQuestions();
+  notesList.innerHTML = "";
+  questions.forEach((variantGroup, idx) => {
+    const variantIdx = state.questionVariant[idx] || 0;
+    const q = variantGroup[variantIdx];
+    const value = (payloadAnswers[q.id] || "").trim() || "(skipped)";
+    const dt = document.createElement("dt");
+    dt.textContent = q.question;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    notesList.appendChild(dt);
+    notesList.appendChild(dd);
+  });
+  notesDetails.classList.remove("hidden");
+}
+
+async function generateDraft(adjust) {
   errorBanner.classList.add("hidden");
+  toneNote.classList.add("hidden");
+  loadingText.classList.remove("hidden");
+
+  const isRegenerate = !draftText.classList.contains("hidden");
+  let currentResult = null;
+  if (isRegenerate) {
+    currentResult = {
+      draft: draftText.value,
+      wordCount: parseInt(wordCountText.textContent, 10) || 0,
+      targetRange: state.lastTargetRange || [0, 0],
+      inRange: wordCountText.classList.contains("in-range"),
+    };
+  }
+
   draftText.classList.add("hidden");
   wordCountText.classList.add("hidden");
   copyBtn.classList.add("hidden");
-  toneNote.classList.add("hidden");
-  loadingText.classList.remove("hidden");
+  shortenBtn.classList.add("hidden");
+  lengthenBtn.classList.add("hidden");
 
   const payloadAnswers = {};
   const questions = currentQuestions();
@@ -321,6 +491,7 @@ async function generateDraft() {
         tutor_group: state.tutorGroup,
         house: state.house,
         answers: payloadAnswers,
+        adjust: adjust || undefined,
       }),
     });
     const body = await response.json();
@@ -329,14 +500,25 @@ async function generateDraft() {
       throw new Error(body.error || "Something went wrong generating the draft.");
     }
 
-    draftText.value = body.draft;
-    wordCountText.textContent = `${body.word_count} words (target: ${body.target_range[0]}-${body.target_range[1]})`;
-    wordCountText.classList.toggle("in-range", body.in_range);
-    wordCountText.classList.toggle("out-of-range", !body.in_range);
+    if (currentResult) {
+      state.previousDraft = currentResult;
+      usePreviousBtn.classList.remove("hidden");
+    }
+
+    applyDraftResult({
+      draft: body.draft,
+      wordCount: body.word_count,
+      targetRange: body.target_range,
+      inRange: body.in_range,
+    });
 
     draftText.classList.remove("hidden");
     wordCountText.classList.remove("hidden");
     copyBtn.classList.remove("hidden");
+    regenerateBtn.classList.remove("hidden");
+    checklistNote.classList.remove("hidden");
+    renderNotesList(payloadAnswers);
+    clearAutosave();
 
     if (body.tempered_words && body.tempered_words.length) {
       toneNote.textContent = `Heads up: your notes included stronger language (${body.tempered_words.join(", ")}). The AI has softened this in the draft below, please check the wording.`;
@@ -349,3 +531,10 @@ async function generateDraft() {
     loadingText.classList.add("hidden");
   }
 }
+
+(function initResume() {
+  const saved = loadAutosave();
+  if (saved && saved.answers && Object.values(saved.answers).some((v) => String(v).trim())) {
+    resumeBanner.classList.remove("hidden");
+  }
+})();
