@@ -17,9 +17,14 @@ HALLUCINATION_GUARD = (
     "activities, or student details. Do not copy phrases from the "
     "examples provided. Instead, reshape the teacher's own language "
     "into Wesley's voice. If a teacher answer is empty or missing, "
-    "simply omit that topic from the report rather than inventing details. "
-    "DO weave in the student's Tutor Group and House context where natural "
-    "(e.g., 'Within [Tutor Group], [they...]', 'House [name] involvement')."
+    "simply omit that topic from the report rather than inventing details."
+)
+
+CONTEXT_REQUIREMENT = (
+    "REQUIRED: You MUST explicitly mention the student's Tutor Group and/or House "
+    "at least once in the report. Reference it naturally in relevant sections: "
+    "'Within [Tutor Group]', 'House [name]', '[Tutor Group] community', "
+    "'House [name] events', etc. This context must appear in the output."
 )
 
 REPORT_RULES = {
@@ -73,7 +78,7 @@ ANSWER_LABELS = {
 def build_system_prompt(report_type: str, pronouns: str = "they/them") -> str:
     low, high = get_range(report_type)
     rules = REPORT_RULES[report_type].format(low=low, high=high, pronouns=pronouns)
-    parts = [HALLUCINATION_GUARD, rules, STYLE_GUIDE_NOTES]
+    parts = [HALLUCINATION_GUARD, CONTEXT_REQUIREMENT, rules, STYLE_GUIDE_NOTES]
 
     if report_type == "tutor":
         examples_block = "\n\n".join(
@@ -98,14 +103,18 @@ def build_user_prompt(
 ) -> str:
     labels = ANSWER_LABELS[report_type]
     lines = [f"Teacher's notes about the student (using pronouns {pronouns}):"]
-    if tutor_group or house:
-        context_parts = []
-        if tutor_group and tutor_group != "(not specified)":
-            context_parts.append(f"Tutor Group: {tutor_group}")
-        if house and house != "(not specified)":
-            context_parts.append(f"House: {house}")
-        if context_parts:
-            lines.append(f"- Context: {', '.join(context_parts)}")
+    lines.append("")
+    lines.append("*** CONTEXT (MUST REFERENCE IN REPORT) ***")
+    if tutor_group and tutor_group != "(not specified)":
+        lines.append(f"Tutor Group: {tutor_group}")
+    else:
+        lines.append("Tutor Group: (not specified)")
+    if house and house != "(not specified)":
+        lines.append(f"House: {house}")
+    else:
+        lines.append("House: (not specified)")
+    lines.append("*** END CONTEXT ***")
+    lines.append("")
     for key, label in labels.items():
         value = str(answers.get(key, "")).strip()
         if value:
