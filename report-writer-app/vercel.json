@@ -4,9 +4,5 @@
     "api/generate.py": {
       "runtime": "python3.11"
     }
-  },
-  "env": [
-    "OPENAI_API_KEY",
-    "OPENAI_MODEL"
-  ]
+  }
 }
