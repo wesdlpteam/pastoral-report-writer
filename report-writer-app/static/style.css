@@ -115,6 +115,33 @@ body {
   color: var(--wes-white);
 }
 
+.pronouns-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.pronoun-btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  border: 2px solid var(--wes-purple);
+  background: var(--wes-white);
+  color: var(--wes-purple);
+  cursor: pointer;
+  font-family: var(--wes-font-ui);
+  font-size: 0.95rem;
+}
+
+.pronoun-btn:hover {
+  background: var(--wes-neutral-200);
+}
+
+.pronoun-btn.selected {
+  background: var(--wes-purple);
+  color: var(--wes-white);
+}
+
 .freetext-label {
   display: block;
   margin-top: 1rem;
