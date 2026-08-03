@@ -1,4 +1,4 @@
-# Pastoral Report Writing Companion
+# Report Comment Companion
 
 A web tool for Wesley College teachers to draft pastoral report comments quickly. Teachers answer a few questions, the AI drafts a Wesley-style comment, and they copy it into Word.
 
