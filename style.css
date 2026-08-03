@@ -9,6 +9,7 @@
   --wes-neutral-900: #2B281F;
   --wes-error: #E83534;
   --wes-ink-gold: #7A5012;
+  --wes-tint-amber: #FFEDBC;
   --wes-font-ui: "Graphik", "Segoe UI", system-ui, sans-serif;
 
   --space-xs: 4px;
@@ -280,6 +281,14 @@ input[type="text"]:focus-visible {
 .loading-text {
   color: var(--wes-purple);
   font-weight: 600;
+}
+
+.tone-note {
+  background: var(--wes-tint-amber);
+  color: var(--wes-ink-gold);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
 .word-count {

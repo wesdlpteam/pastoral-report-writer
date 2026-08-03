@@ -120,6 +120,7 @@ const houseInput = document.getElementById("house-input");
 
 const errorBanner = document.getElementById("error-banner");
 const loadingText = document.getElementById("loading-text");
+const toneNote = document.getElementById("tone-note");
 const draftText = document.getElementById("draft-text");
 const wordCountText = document.getElementById("word-count-text");
 const copyBtn = document.getElementById("copy-btn");
@@ -299,6 +300,7 @@ async function generateDraft() {
   draftText.classList.add("hidden");
   wordCountText.classList.add("hidden");
   copyBtn.classList.add("hidden");
+  toneNote.classList.add("hidden");
   loadingText.classList.remove("hidden");
 
   const payloadAnswers = {};
@@ -335,6 +337,11 @@ async function generateDraft() {
     draftText.classList.remove("hidden");
     wordCountText.classList.remove("hidden");
     copyBtn.classList.remove("hidden");
+
+    if (body.tempered_words && body.tempered_words.length) {
+      toneNote.textContent = `Heads up: your notes included stronger language (${body.tempered_words.join(", ")}). The AI has softened this in the draft below, please check the wording.`;
+      toneNote.classList.remove("hidden");
+    }
   } catch (err) {
     errorBanner.textContent = err.message;
     errorBanner.classList.remove("hidden");
