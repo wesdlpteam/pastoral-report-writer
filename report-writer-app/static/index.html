@@ -12,7 +12,12 @@
     <p class="tagline">Answer a few quick questions, get a Wesley-style draft.</p>
   </header>
 
+  <div class="progress-track" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
   <main class="app">
+   <div class="card">
     <section id="screen-select" class="screen">
       <h2>Which report are you writing?</h2>
       <div class="type-choices">
@@ -85,6 +90,7 @@
         <button id="start-over-btn" class="btn btn-secondary">Start a new student</button>
       </div>
     </section>
+   </div>
   </main>
 
   <script src="script.js"></script>

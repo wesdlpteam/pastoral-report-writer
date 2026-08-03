@@ -126,6 +126,16 @@ const copyBtn = document.getElementById("copy-btn");
 const startOverBtn = document.getElementById("start-over-btn");
 const otherPronounDiv = document.getElementById("other-pronoun");
 const customPronounInput = document.getElementById("custom-pronoun");
+const progressTrack = document.getElementById("progress-track");
+const progressFill = document.getElementById("progress-fill");
+
+const TOTAL_STEPS = 7;
+
+function setProgress(stepIndex) {
+  const pct = Math.min(1, Math.max(0, stepIndex / TOTAL_STEPS));
+  progressFill.style.transform = `scaleX(${pct})`;
+  progressTrack.setAttribute("aria-valuenow", Math.round(pct * 100));
+}
 
 document.querySelectorAll(".type-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -134,6 +144,7 @@ document.querySelectorAll(".type-btn").forEach((btn) => {
     state.answers = {};
     state.questionVariant = {};
     showScreen(screenPronoun);
+    setProgress(1);
   });
 });
 
@@ -157,6 +168,7 @@ pronounNextBtn.addEventListener("click", () => {
     state.pronoun = customPronounInput.value || "they/them";
   }
   showScreen(screenContext);
+  setProgress(2);
 });
 
 contextNextBtn.addEventListener("click", () => {
@@ -193,6 +205,8 @@ function renderQuestion() {
   const isLast = state.index === questions.length - 1;
   nextBtn.classList.toggle("hidden", isLast);
   generateBtn.classList.toggle("hidden", !isLast);
+
+  setProgress(3 + state.index);
 }
 
 anotherBtn.addEventListener("click", () => {
@@ -223,6 +237,7 @@ skipBtn.addEventListener("click", () => {
     renderQuestion();
   } else {
     showScreen(screenResult);
+    setProgress(TOTAL_STEPS);
     generateDraft();
   }
 });
@@ -251,6 +266,7 @@ generateBtn.addEventListener("click", () => {
   }
   state.answers[q.id] = textValue;
   showScreen(screenResult);
+  setProgress(TOTAL_STEPS);
   generateDraft();
 });
 
@@ -275,6 +291,7 @@ startOverBtn.addEventListener("click", () => {
   houseInput.value = "";
   document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));
   showScreen(screenSelect);
+  setProgress(0);
 });
 
 async function generateDraft() {
