@@ -354,6 +354,14 @@ input[type="text"]:focus-visible {
   color: var(--wes-neutral-900);
 }
 
+.notes-edit-input {
+  margin-top: var(--space-xs);
+}
+
+#update-notes-btn {
+  margin-top: var(--space-sm);
+}
+
 .adjust-buttons {
   display: flex;
   gap: var(--space-sm);

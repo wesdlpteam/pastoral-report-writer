@@ -134,6 +134,7 @@ const loadingText = document.getElementById("loading-text");
 const toneNote = document.getElementById("tone-note");
 const notesDetails = document.getElementById("notes-details");
 const notesList = document.getElementById("notes-list");
+const updateNotesBtn = document.getElementById("update-notes-btn");
 const draftText = document.getElementById("draft-text");
 const wordCountText = document.getElementById("word-count-text");
 const shortenBtn = document.getElementById("shorten-btn");
@@ -440,16 +441,32 @@ function renderNotesList(payloadAnswers) {
   questions.forEach((variantGroup, idx) => {
     const variantIdx = state.questionVariant[idx] || 0;
     const q = variantGroup[variantIdx];
-    const value = (payloadAnswers[q.id] || "").trim() || "(skipped)";
+    const value = payloadAnswers[q.id] || "";
+
     const dt = document.createElement("dt");
     dt.textContent = q.question;
+
     const dd = document.createElement("dd");
-    dd.textContent = value;
+    const textarea = document.createElement("textarea");
+    textarea.className = "notes-edit-input";
+    textarea.rows = 3;
+    textarea.value = value;
+    textarea.dataset.questionId = q.id;
+    dd.appendChild(textarea);
+
     notesList.appendChild(dt);
     notesList.appendChild(dd);
   });
   notesDetails.classList.remove("hidden");
 }
+
+updateNotesBtn.addEventListener("click", () => {
+  notesList.querySelectorAll("textarea[data-question-id]").forEach((textarea) => {
+    state.answers[textarea.dataset.questionId] = textarea.value;
+  });
+  notesDetails.open = true;
+  generateDraft();
+});
 
 async function generateDraft(adjust) {
   errorBanner.classList.add("hidden");
