@@ -114,6 +114,7 @@ const screenResult = document.getElementById("screen-result");
 const progressText = document.getElementById("progress-text");
 const questionText = document.getElementById("question-text");
 const answerInput = document.getElementById("answer-input");
+const answerError = document.getElementById("answer-error");
 const backBtn = document.getElementById("back-btn");
 const anotherBtn = document.getElementById("another-btn");
 const skipBtn = document.getElementById("skip-btn");
@@ -150,6 +151,12 @@ const progressTrack = document.getElementById("progress-track");
 const progressFill = document.getElementById("progress-fill");
 
 const TOTAL_STEPS = 7;
+const MIN_WORDS = 5;
+
+function countWords(text) {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
 
 function setProgress(stepIndex) {
   const pct = Math.min(1, Math.max(0, stepIndex / TOTAL_STEPS));
@@ -269,6 +276,7 @@ function renderQuestion() {
   progressText.textContent = `Question ${state.index + 1} of ${questions.length}`;
   questionText.textContent = q.question;
   answerInput.value = state.answers[q.id] || "";
+  answerError.classList.add("hidden");
 
   backBtn.classList.toggle("hidden", state.index === 0);
   const isLast = state.index === questions.length - 1;
@@ -318,8 +326,13 @@ nextBtn.addEventListener("click", () => {
   const q = currentQuestion();
   const textValue = answerInput.value.trim();
   if (!textValue) {
-    errorBanner.textContent = "Please enter text or skip this question.";
-    errorBanner.classList.remove("hidden");
+    answerError.textContent = "Please enter text or skip this question.";
+    answerError.classList.remove("hidden");
+    return;
+  }
+  if (countWords(textValue) < MIN_WORDS) {
+    answerError.textContent = `Please write at least ${MIN_WORDS} words, or skip this question.`;
+    answerError.classList.remove("hidden");
     return;
   }
   state.answers[q.id] = textValue;
@@ -333,8 +346,13 @@ generateBtn.addEventListener("click", () => {
   const q = currentQuestion();
   const textValue = answerInput.value.trim();
   if (!textValue) {
-    errorBanner.textContent = "Please enter text or skip this question.";
-    errorBanner.classList.remove("hidden");
+    answerError.textContent = "Please enter text or skip this question.";
+    answerError.classList.remove("hidden");
+    return;
+  }
+  if (countWords(textValue) < MIN_WORDS) {
+    answerError.textContent = `Please write at least ${MIN_WORDS} words, or skip this question.`;
+    answerError.classList.remove("hidden");
     return;
   }
   state.answers[q.id] = textValue;
@@ -461,7 +479,19 @@ function renderNotesList(payloadAnswers) {
 }
 
 updateNotesBtn.addEventListener("click", () => {
-  notesList.querySelectorAll("textarea[data-question-id]").forEach((textarea) => {
+  const textareas = notesList.querySelectorAll("textarea[data-question-id]");
+  const tooShort = Array.from(textareas).some((textarea) => {
+    const value = textarea.value.trim();
+    return value && countWords(value) < MIN_WORDS;
+  });
+  if (tooShort) {
+    errorBanner.textContent = `Please write at least ${MIN_WORDS} words in each note you've filled in, or clear it blank.`;
+    errorBanner.classList.remove("hidden");
+    notesDetails.open = true;
+    return;
+  }
+
+  textareas.forEach((textarea) => {
     state.answers[textarea.dataset.questionId] = textarea.value;
   });
   notesDetails.open = true;
