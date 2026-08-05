@@ -13,9 +13,6 @@ from word_count import count_words, get_range, is_in_range
 
 app = Flask(__name__)
 
-ACCESS_CODE = os.environ.get("ACCESS_CODE")
-
-
 ALLOWED_ORIGIN = "https://wesdlpteam.github.io"
 
 
@@ -33,9 +30,6 @@ def generate():
         return "", 200
 
     data = request.get_json(silent=True) or {}
-
-    if ACCESS_CODE and data.get("access_code") != ACCESS_CODE:
-        return jsonify({"error": "Incorrect access code. Check with your Head of Year or the DLP Team and try again."}), 401
 
     report_type = data.get("report_type")
     answers = data.get("answers")

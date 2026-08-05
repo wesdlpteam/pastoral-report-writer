@@ -5,7 +5,7 @@ const API_URL = window.location.hostname === "localhost"
 const LS_TUTOR_GROUP = "pastoralLastTutorGroup";
 const LS_HOUSE = "pastoralLastHouse";
 const LS_AUTOSAVE = "pastoralAutosave";
-const LS_ACCESS_CODE = "pastoralAccessCode";
+const LS_WELCOME_SEEN = "pastoralWelcomeSeen";
 
 const QUESTIONS = {
   tutor: [
@@ -107,8 +107,6 @@ const state = {
 };
 
 const screenWelcome = document.getElementById("screen-welcome");
-const accessCodeInput = document.getElementById("access-code-input");
-const welcomeError = document.getElementById("welcome-error");
 const welcomeStartBtn = document.getElementById("welcome-start-btn");
 
 const screenSelect = document.getElementById("screen-select");
@@ -545,19 +543,9 @@ async function generateDraft(adjust) {
         house: state.house,
         answers: payloadAnswers,
         adjust: adjust || undefined,
-        access_code: localStorage.getItem(LS_ACCESS_CODE) || "",
       }),
     });
     const body = await response.json();
-
-    if (response.status === 401) {
-      localStorage.removeItem(LS_ACCESS_CODE);
-      accessCodeInput.value = "";
-      welcomeError.textContent = body.error || "Incorrect access code. Please re-enter it.";
-      welcomeError.classList.remove("hidden");
-      showScreen(screenWelcome);
-      return;
-    }
 
     if (!response.ok) {
       throw new Error(body.error || "Something went wrong generating the draft.");
@@ -603,19 +591,12 @@ function checkResumeBanner() {
 }
 
 welcomeStartBtn.addEventListener("click", () => {
-  const code = accessCodeInput.value.trim();
-  if (!code) {
-    welcomeError.textContent = "Please enter the access code before continuing.";
-    welcomeError.classList.remove("hidden");
-    return;
-  }
-  localStorage.setItem(LS_ACCESS_CODE, code);
-  welcomeError.classList.add("hidden");
+  localStorage.setItem(LS_WELCOME_SEEN, "1");
   showScreen(screenSelect);
   checkResumeBanner();
 });
 
-if (localStorage.getItem(LS_ACCESS_CODE)) {
+if (localStorage.getItem(LS_WELCOME_SEEN)) {
   showScreen(screenSelect);
   checkResumeBanner();
 }
