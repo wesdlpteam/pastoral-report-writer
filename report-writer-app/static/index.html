@@ -18,7 +18,26 @@
 
   <main class="app">
    <div class="card">
-    <section id="screen-select" class="screen">
+    <section id="screen-welcome" class="screen">
+      <h2>Welcome to the Report Comment Companion</h2>
+      <p class="welcome-intro">This tool helps you draft pastoral report comments faster, using your own words. It doesn't write reports on its own, you stay the author, it just handles the structuring and Wesley-style polish.</p>
+      <p class="freetext-label" style="margin-top: 1.5rem;">How it works:</p>
+      <ol class="welcome-steps">
+        <li>Pick the report type (Tutor or PYP Semester).</li>
+        <li>Answer a few short questions about the student, in your own words.</li>
+        <li>Review the AI-drafted comment and edit however you like.</li>
+        <li>Copy it into Word and add the student's name.</li>
+      </ol>
+      <p class="welcome-privacy">Student names are never entered into this tool. Nothing you type is saved or logged anywhere.</p>
+      <label class="freetext-label" for="access-code-input">Access code:</label>
+      <input type="text" id="access-code-input" placeholder="Ask your Head of Year or the DLP Team" style="margin-top: 0.5rem;">
+      <p id="welcome-error" class="error-banner hidden"></p>
+      <div class="nav-buttons">
+        <button id="welcome-start-btn" class="btn btn-primary" style="margin-top: 1rem;">Get started</button>
+      </div>
+    </section>
+
+    <section id="screen-select" class="screen hidden">
       <p id="resume-banner" class="resume-banner hidden">
         You have an unfinished report saved.
         <button id="resume-btn" class="btn-link">Resume it</button>

@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,6 +13,8 @@ from word_count import count_words, get_range, is_in_range
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
+ACCESS_CODE = os.environ.get("ACCESS_CODE")
+
 @app.route("/")
 def index():
     return send_from_directory(app.static_folder, "index.html")
@@ -19,6 +23,10 @@ def index():
 @app.route("/api/generate", methods=["POST"])
 def generate():
     data = request.get_json(silent=True) or {}
+
+    if ACCESS_CODE and data.get("access_code") != ACCESS_CODE:
+        return jsonify({"error": "Incorrect access code. Check with your Head of Year or the DLP Team and try again."}), 401
+
     report_type = data.get("report_type")
     pronouns = data.get("pronouns", "they/them")
     tutor_group = data.get("tutor_group")
