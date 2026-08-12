@@ -121,7 +121,6 @@ const answerInput = document.getElementById("answer-input");
 const answerError = document.getElementById("answer-error");
 const backBtn = document.getElementById("back-btn");
 const anotherBtn = document.getElementById("another-btn");
-const skipBtn = document.getElementById("skip-btn");
 const nextBtn = document.getElementById("next-btn");
 const generateBtn = document.getElementById("generate-btn");
 const pronounNextBtn = document.getElementById("pronoun-next-btn");
@@ -157,9 +156,22 @@ const progressFill = document.getElementById("progress-fill");
 const TOTAL_STEPS = 7;
 const MIN_WORDS = 5;
 
+const BAD_WORDS = [
+  "fuck", "fucking", "fucker", "shit", "shitty", "bitch", "bastard",
+  "asshole", "ass", "dick", "piss", "cunt", "cock", "prick", "wanker",
+  "twat", "slut", "whore", "retard", "retarded", "faggot", "fag",
+  "nigger", "nigga", "spastic", "crap", "bloody", "bugger", "arse",
+  "douche", "douchebag", "motherfucker",
+];
+
 function countWords(text) {
   const trimmed = text.trim();
   return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
+function findBadWords(text) {
+  const lower = text.toLowerCase();
+  return BAD_WORDS.filter((word) => new RegExp(`\\b${word}\\b`, "i").test(lower));
 }
 
 function setProgress(stepIndex) {
@@ -311,31 +323,25 @@ backBtn.addEventListener("click", () => {
   saveAutosave();
 });
 
-skipBtn.addEventListener("click", () => {
-  const q = currentQuestion();
-  state.answers[q.id] = "";
-  state.questionVariant[state.index] = 0;
-  state.index += 1;
-  if (state.index < currentQuestions().length) {
-    renderQuestion();
-    saveAutosave();
-  } else {
-    showScreen(screenResult);
-    setProgress(TOTAL_STEPS);
-    generateDraft();
+function validateAnswer(textValue) {
+  if (!textValue) {
+    return "Please enter an answer before continuing.";
   }
-});
+  if (countWords(textValue) < MIN_WORDS) {
+    return `Please write at least ${MIN_WORDS} words.`;
+  }
+  if (findBadWords(textValue).length) {
+    return "Please rewrite this without inappropriate language.";
+  }
+  return null;
+}
 
 nextBtn.addEventListener("click", () => {
   const q = currentQuestion();
   const textValue = answerInput.value.trim();
-  if (!textValue) {
-    answerError.textContent = "Please enter text or skip this question.";
-    answerError.classList.remove("hidden");
-    return;
-  }
-  if (countWords(textValue) < MIN_WORDS) {
-    answerError.textContent = `Please write at least ${MIN_WORDS} words, or skip this question.`;
+  const error = validateAnswer(textValue);
+  if (error) {
+    answerError.textContent = error;
     answerError.classList.remove("hidden");
     return;
   }
@@ -349,13 +355,9 @@ nextBtn.addEventListener("click", () => {
 generateBtn.addEventListener("click", () => {
   const q = currentQuestion();
   const textValue = answerInput.value.trim();
-  if (!textValue) {
-    answerError.textContent = "Please enter text or skip this question.";
-    answerError.classList.remove("hidden");
-    return;
-  }
-  if (countWords(textValue) < MIN_WORDS) {
-    answerError.textContent = `Please write at least ${MIN_WORDS} words, or skip this question.`;
+  const error = validateAnswer(textValue);
+  if (error) {
+    answerError.textContent = error;
     answerError.classList.remove("hidden");
     return;
   }
@@ -484,19 +486,17 @@ function renderNotesList(payloadAnswers) {
 
 updateNotesBtn.addEventListener("click", () => {
   const textareas = notesList.querySelectorAll("textarea[data-question-id]");
-  const tooShort = Array.from(textareas).some((textarea) => {
-    const value = textarea.value.trim();
-    return value && countWords(value) < MIN_WORDS;
-  });
-  if (tooShort) {
-    errorBanner.textContent = `Please write at least ${MIN_WORDS} words in each note you've filled in, or clear it blank.`;
+  const errors = Array.from(textareas).map((textarea) => validateAnswer(textarea.value.trim()));
+  const firstError = errors.find((e) => e);
+  if (firstError) {
+    errorBanner.textContent = `Every note needs an answer: ${firstError}`;
     errorBanner.classList.remove("hidden");
     notesDetails.open = true;
     return;
   }
 
   textareas.forEach((textarea) => {
-    state.answers[textarea.dataset.questionId] = textarea.value;
+    state.answers[textarea.dataset.questionId] = textarea.value.trim();
   });
   notesDetails.open = true;
   generateDraft();

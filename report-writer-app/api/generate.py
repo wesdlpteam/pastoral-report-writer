@@ -5,11 +5,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, jsonify, request
 
+from content_filter import find_bad_words
 from openai_client import DraftGenerationError, generate_draft
 from prompts import build_system_prompt, build_user_prompt
 from tone_guide import find_tempered_words
 from word_count import count_words, get_range, is_in_range
 
+MIN_WORDS_PER_ANSWER = 5
 
 app = Flask(__name__)
 
@@ -47,6 +49,15 @@ def generate():
     has_answer = any(str(v).strip() for v in answers.values())
     if not has_answer:
         return jsonify({"error": "at least one answer required"}), 400
+
+    for value in answers.values():
+        text = str(value).strip()
+        if text and len(text.split()) < MIN_WORDS_PER_ANSWER:
+            return jsonify(
+                {"error": f"each answer needs at least {MIN_WORDS_PER_ANSWER} words"}
+            ), 400
+        if find_bad_words(text):
+            return jsonify({"error": "please rewrite an answer without inappropriate language"}), 400
 
     system_prompt = build_system_prompt(report_type, pronouns)
     user_prompt = build_user_prompt(report_type, answers, pronouns, tutor_group, house, adjust)

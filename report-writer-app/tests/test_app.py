@@ -50,9 +50,9 @@ def test_generate_success_tutor(mock_generate_draft, client):
         json={
             "report_type": "tutor",
             "answers": {
-                "person": "resilient",
-                "learner": "improving",
-                "participant": "engaged",
+                "person": "shows resilience and works well with peers",
+                "learner": "steadily improving across all subjects this term",
+                "participant": "engaged and enthusiastic in class activities",
                 "summary": "",
             },
         },
@@ -75,11 +75,43 @@ def test_generate_openai_failure_returns_502(mock_generate_draft, client):
         "/api/generate",
         json={
             "report_type": "tutor",
-            "answers": {"person": "x", "learner": "y", "participant": "z"},
+            "answers": {
+                "person": "shows resilience and works well with peers",
+                "learner": "steadily improving across all subjects this term",
+                "participant": "engaged and enthusiastic in class activities",
+            },
         },
     )
 
     assert response.status_code == 502
+
+
+def test_generate_answer_too_short(client):
+    response = client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "answers": {"person": "too short", "learner": "", "participant": ""},
+        },
+    )
+    assert response.status_code == 400
+    assert "at least" in response.get_json()["error"]
+
+
+def test_generate_answer_with_bad_word(client):
+    response = client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "answers": {
+                "person": "this student is a total shit in class",
+                "learner": "",
+                "participant": "",
+            },
+        },
+    )
+    assert response.status_code == 400
+    assert "inappropriate language" in response.get_json()["error"]
 
 
 @patch("app.generate_draft")
@@ -91,10 +123,10 @@ def test_generate_success_pyp(mock_generate_draft, client):
         json={
             "report_type": "pyp",
             "answers": {
-                "learner_social": "curious",
-                "atl": "strong thinking skills",
-                "achievement": "camp",
-                "next_steps": "keep reading widely",
+                "learner_social": "curious and keen to explore new ideas",
+                "atl": "shows strong thinking and communication skills daily",
+                "achievement": "took part in the school camp with enthusiasm",
+                "next_steps": "keep reading widely and building confidence",
             },
         },
     )
