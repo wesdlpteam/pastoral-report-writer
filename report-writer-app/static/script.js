@@ -174,6 +174,21 @@ function findBadWords(text) {
   return BAD_WORDS.filter((word) => new RegExp(`\\b${word}\\b`, "i").test(lower));
 }
 
+const KEYBOARD_MASH_PATTERNS = ["asdf", "qwert", "zxcv", "hjkl", "jklm", "qazwsx", "wasdw"];
+const VOWELS = new Set(["a", "e", "i", "o", "u", "y"]);
+
+function isGibberishWord(word) {
+  const clean = word.replace(/[^a-zA-Z]/g, "").toLowerCase();
+  if (clean.length < 3) return false;
+  if (/(.)\1{3,}/.test(clean)) return true;
+  if (clean.length >= 4 && ![...clean].some((c) => VOWELS.has(c))) return true;
+  return KEYBOARD_MASH_PATTERNS.some((pattern) => clean.includes(pattern));
+}
+
+function findGibberishWords(text) {
+  return text.split(/\s+/).filter(isGibberishWord);
+}
+
 function setProgress(stepIndex) {
   const pct = Math.min(1, Math.max(0, stepIndex / TOTAL_STEPS));
   progressFill.style.transform = `scaleX(${pct})`;
@@ -332,6 +347,9 @@ function validateAnswer(textValue) {
   }
   if (findBadWords(textValue).length) {
     return "Please rewrite this without inappropriate language.";
+  }
+  if (findGibberishWords(textValue).length) {
+    return "This doesn't look like a real answer. Please write a genuine response.";
   }
   return null;
 }
