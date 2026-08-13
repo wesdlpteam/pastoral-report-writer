@@ -92,11 +92,24 @@
       <label class="freetext-label" for="answer-input">Your answer:</label>
       <textarea id="answer-input" rows="4" placeholder="Type what you know about this student..."></textarea>
       <p id="answer-error" class="error-banner hidden"></p>
-      <div class="nav-buttons">
+      <div class="nav-buttons" id="question-nav-buttons">
         <button id="back-btn" class="btn btn-secondary">Back</button>
         <button id="another-btn" class="btn btn-secondary">Another question</button>
         <button id="next-btn" class="btn btn-primary">Next</button>
         <button id="generate-btn" class="btn btn-primary hidden">Generate draft</button>
+      </div>
+
+      <div id="followup-panel" class="followup-panel hidden">
+        <p id="followup-loading" class="loading-text">Thinking of a follow-up question...</p>
+        <div id="followup-content" class="hidden">
+          <p class="followup-question" id="followup-question"></p>
+          <ul class="followup-suggestions" id="followup-suggestions"></ul>
+          <label class="freetext-label" for="followup-input">Add more detail (optional):</label>
+          <textarea id="followup-input" rows="3" placeholder="Add anything else you can think of..."></textarea>
+          <div class="nav-buttons">
+            <button id="followup-continue-btn" class="btn btn-primary">Continue</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -128,7 +141,7 @@
    </div>
   </main>
 
-  <p class="app-version">v2026.08.13-2</p>
+  <p class="app-version">v2026.08.13-3</p>
 
   <script src="script.js"></script>
 </body>

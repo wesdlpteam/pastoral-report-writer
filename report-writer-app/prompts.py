@@ -13,12 +13,15 @@ STYLE_GUIDE_NOTES = (
 
 HALLUCINATION_GUARD = (
     "CRITICAL: Use ONLY the information the teacher provided in their "
-    "answers below. Do not add details, facts, or achievements not "
-    "mentioned by the teacher. Do not invent examples, awards, "
-    "activities, or student details. Do not copy phrases from the "
-    "examples provided. Instead, reshape the teacher's own language "
-    "into Wesley's voice. If a teacher answer is empty or missing, "
-    "simply omit that topic from the report rather than inventing details."
+    "answers below. You MAY elaborate on, rephrase, add context to, or "
+    "draw out the natural implications of what the teacher wrote, to "
+    "help reach the required word count. You must NEVER add a fact, "
+    "example, achievement, activity, or detail the teacher did not "
+    "mention - reaching the word count is never a reason to invent "
+    "content. Do not copy phrases from the examples provided. Instead, "
+    "reshape the teacher's own language into Wesley's voice. If a "
+    "teacher answer is empty or missing, simply omit that topic from "
+    "the report rather than inventing details."
 )
 
 CONTEXT_REQUIREMENT = (
@@ -135,8 +138,31 @@ def build_user_prompt(
         lines.append(
             "\nIMPORTANT: Your previous draft was too short. Write this "
             "version noticeably longer while keeping the same meaning "
-            "and covering all required themes, adding relevant detail "
-            "from the teacher's notes above."
+            "and covering all required themes. Reach the extra length "
+            "ONLY by more fully elaborating on, explaining, or adding "
+            "natural context to the detail the teacher already gave you "
+            "above - never by inventing a new fact, example, or detail "
+            "they did not mention."
         )
 
     return "\n".join(lines)
+
+
+FOLLOWUP_SYSTEM_PROMPT = (
+    "You are helping a teacher add more real detail to a short note "
+    "about a student, before it becomes part of a school report "
+    "comment. You know nothing about the student beyond what they "
+    "type below - never invent or assume anything about them. Based "
+    "on the question they were asked and what they wrote so far, "
+    "write ONE short, specific follow-up question that would help "
+    "them recall and add more concrete detail (not generic). Also "
+    "give 2-3 short idea-prompts, a few words each, not full "
+    "sentences, suggesting the kind of thing they could mention - "
+    "these are prompts to spark their memory, not text for them to "
+    'copy. Respond with JSON only, in this exact shape: {"question": '
+    '"...", "suggestions": ["...", "...", "..."]}'
+)
+
+
+def build_followup_user_prompt(question_label: str, answer: str) -> str:
+    return f"The teacher was asked: {question_label}\nThey wrote: {answer}"

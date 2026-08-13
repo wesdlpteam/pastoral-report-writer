@@ -162,3 +162,56 @@ def test_generate_success_pyp(mock_generate_draft, client):
     assert response.status_code == 200
     body = response.get_json()
     assert body["target_range"] == [180, 300]
+
+
+def test_followup_missing_report_type(client):
+    response = client.post("/api/followup", json={"question_id": "person", "answer": "kind"})
+    assert response.status_code == 400
+
+
+def test_followup_unknown_question_id(client):
+    response = client.post(
+        "/api/followup",
+        json={"report_type": "tutor", "question_id": "bogus", "answer": "kind"},
+    )
+    assert response.status_code == 400
+
+
+def test_followup_missing_answer(client):
+    response = client.post(
+        "/api/followup",
+        json={"report_type": "tutor", "question_id": "person", "answer": ""},
+    )
+    assert response.status_code == 400
+
+
+@patch("app.generate_followup")
+def test_followup_success(mock_generate_followup, client):
+    mock_generate_followup.return_value = {
+        "question": "What did they do well?",
+        "suggestions": ["a specific example", "how they reacted"],
+    }
+
+    response = client.post(
+        "/api/followup",
+        json={"report_type": "tutor", "question_id": "person", "answer": "kind and quiet"},
+    )
+
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["question"] == "What did they do well?"
+    assert body["suggestions"] == ["a specific example", "how they reacted"]
+
+
+@patch("app.generate_followup")
+def test_followup_openai_failure_returns_502(mock_generate_followup, client):
+    from openai_client import FollowupGenerationError
+
+    mock_generate_followup.side_effect = FollowupGenerationError("boom")
+
+    response = client.post(
+        "/api/followup",
+        json={"report_type": "tutor", "question_id": "person", "answer": "kind and quiet"},
+    )
+
+    assert response.status_code == 502

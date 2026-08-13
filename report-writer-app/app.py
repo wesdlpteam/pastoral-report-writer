@@ -5,8 +5,19 @@ load_dotenv()
 from flask import Flask, jsonify, request, send_from_directory
 
 from content_filter import find_bad_words, find_gibberish_words, has_low_word_diversity
-from openai_client import DraftGenerationError, generate_draft
-from prompts import build_system_prompt, build_user_prompt
+from openai_client import (
+    DraftGenerationError,
+    FollowupGenerationError,
+    generate_draft,
+    generate_followup,
+)
+from prompts import (
+    ANSWER_LABELS,
+    FOLLOWUP_SYSTEM_PROMPT,
+    build_followup_user_prompt,
+    build_system_prompt,
+    build_user_prompt,
+)
 from tone_guide import find_tempered_words
 from word_count import count_words, get_range, is_in_range
 
@@ -74,6 +85,32 @@ def generate():
             "tempered_words": find_tempered_words(answers),
         }
     )
+
+
+@app.route("/api/followup", methods=["POST"])
+def followup():
+    data = request.get_json(silent=True) or {}
+
+    report_type = data.get("report_type")
+    question_id = data.get("question_id")
+    answer = str(data.get("answer", "")).strip()
+
+    if report_type not in ANSWER_LABELS:
+        return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
+    if question_id not in ANSWER_LABELS[report_type]:
+        return jsonify({"error": "unknown question_id for this report_type"}), 400
+    if not answer:
+        return jsonify({"error": "answer is required"}), 400
+
+    question_label = ANSWER_LABELS[report_type][question_id]
+    user_prompt = build_followup_user_prompt(question_label, answer)
+
+    try:
+        result = generate_followup(FOLLOWUP_SYSTEM_PROMPT, user_prompt)
+    except FollowupGenerationError as exc:
+        return jsonify({"error": str(exc)}), 502
+
+    return jsonify(result)
 
 
 if __name__ == "__main__":

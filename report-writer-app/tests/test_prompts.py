@@ -1,4 +1,9 @@
-from prompts import build_system_prompt, build_user_prompt
+from prompts import (
+    FOLLOWUP_SYSTEM_PROMPT,
+    build_followup_user_prompt,
+    build_system_prompt,
+    build_user_prompt,
+)
 
 
 def test_build_system_prompt_tutor_has_word_range():
@@ -50,3 +55,20 @@ def test_build_user_prompt_pyp_uses_pyp_labels():
     answers = {"learner_social": "curious", "atl": "", "achievement": "", "next_steps": ""}
     prompt = build_user_prompt("pyp", answers)
     assert "Who they are as a learner and socially" in prompt
+
+
+def test_system_prompt_forbids_inventing_content_even_for_word_count():
+    prompt = build_system_prompt("tutor")
+    assert "never" in prompt.lower() or "must" in prompt.lower()
+    assert "invent" in prompt.lower()
+
+
+def test_followup_system_prompt_requires_json_response():
+    assert "json" in FOLLOWUP_SYSTEM_PROMPT.lower()
+    assert "question" in FOLLOWUP_SYSTEM_PROMPT.lower()
+
+
+def test_build_followup_user_prompt_includes_label_and_answer():
+    prompt = build_followup_user_prompt("The student as a person", "resilient and kind")
+    assert "The student as a person" in prompt
+    assert "resilient and kind" in prompt
