@@ -189,6 +189,13 @@ function findGibberishWords(text) {
   return text.split(/\s+/).filter(isGibberishWord);
 }
 
+function hasLowWordDiversity(text) {
+  const words = text.toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.length < 5) return false;
+  const distinct = new Set(words).size;
+  return distinct / words.length <= 0.4;
+}
+
 function setProgress(stepIndex) {
   const pct = Math.min(1, Math.max(0, stepIndex / TOTAL_STEPS));
   progressFill.style.transform = `scaleX(${pct})`;
@@ -350,6 +357,9 @@ function validateAnswer(textValue) {
   }
   if (findGibberishWords(textValue).length) {
     return "This doesn't look like a real answer. Please write a genuine response.";
+  }
+  if (hasLowWordDiversity(textValue)) {
+    return "This looks like repeated filler text. Please write a genuine response.";
   }
   return null;
 }

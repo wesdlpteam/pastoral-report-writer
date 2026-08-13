@@ -4,7 +4,7 @@ load_dotenv()
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from content_filter import find_bad_words, find_gibberish_words
+from content_filter import find_bad_words, find_gibberish_words, has_low_word_diversity
 from openai_client import DraftGenerationError, generate_draft
 from prompts import build_system_prompt, build_user_prompt
 from tone_guide import find_tempered_words
@@ -49,6 +49,8 @@ def generate():
             return jsonify({"error": "please rewrite an answer without inappropriate language"}), 400
         if find_gibberish_words(text):
             return jsonify({"error": "one of your answers doesn't look like real text, please rewrite it"}), 400
+        if has_low_word_diversity(text):
+            return jsonify({"error": "one of your answers looks like repeated filler text, please write a genuine response"}), 400
 
     system_prompt = build_system_prompt(report_type, pronouns)
     user_prompt = build_user_prompt(

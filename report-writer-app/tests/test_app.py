@@ -114,6 +114,18 @@ def test_generate_answer_with_gibberish(client):
     assert "doesn't look like real text" in response.get_json()["error"]
 
 
+def test_generate_answer_with_repeated_word_spam(client):
+    response = client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "answers": {"person": "poo poo poo poo poo", "learner": "", "participant": ""},
+        },
+    )
+    assert response.status_code == 400
+    assert "repeated filler text" in response.get_json()["error"]
+
+
 def test_generate_answer_with_bad_word(client):
     response = client.post(
         "/api/generate",

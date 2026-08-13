@@ -30,3 +30,11 @@ def _is_gibberish_word(word: str) -> bool:
 
 def find_gibberish_words(text: str) -> list:
     return [word for word in text.split() if _is_gibberish_word(word)]
+
+
+def has_low_word_diversity(text: str) -> bool:
+    words = [w.lower() for w in text.split()]
+    if len(words) < 5:
+        return False
+    distinct = len(set(words))
+    return (distinct / len(words)) <= 0.4
