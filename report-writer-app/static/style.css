@@ -26,6 +26,14 @@
   box-sizing: border-box;
 }
 
+.app-version {
+  text-align: center;
+  color: var(--wes-neutral-900);
+  opacity: 0.4;
+  font-size: 0.75rem;
+  margin: 0 0 var(--space-lg);
+}
+
 body {
   margin: 0;
   font-family: var(--wes-font-ui);
