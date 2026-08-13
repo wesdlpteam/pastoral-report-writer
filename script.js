@@ -410,6 +410,7 @@ async function maybeShowFollowup(q, textValue, proceed) {
         report_type: state.reportType,
         question_id: q.id,
         answer: textValue,
+        pronouns: state.pronoun,
       }),
     });
     if (!response.ok) throw new Error("followup request failed");
