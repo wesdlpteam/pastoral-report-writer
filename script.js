@@ -102,6 +102,7 @@ const state = {
   index: 0,
   answers: {},
   questionVariant: {},
+  followupAsked: {},
   previousDraft: null,
   lastTargetRange: null,
 };
@@ -123,6 +124,14 @@ const backBtn = document.getElementById("back-btn");
 const anotherBtn = document.getElementById("another-btn");
 const nextBtn = document.getElementById("next-btn");
 const generateBtn = document.getElementById("generate-btn");
+const questionNavButtons = document.getElementById("question-nav-buttons");
+const followupPanel = document.getElementById("followup-panel");
+const followupLoading = document.getElementById("followup-loading");
+const followupContent = document.getElementById("followup-content");
+const followupQuestionEl = document.getElementById("followup-question");
+const followupSuggestionsEl = document.getElementById("followup-suggestions");
+const followupInput = document.getElementById("followup-input");
+const followupContinueBtn = document.getElementById("followup-continue-btn");
 const pronounNextBtn = document.getElementById("pronoun-next-btn");
 const contextNextBtn = document.getElementById("context-next-btn");
 const tutorGroupInput = document.getElementById("tutor-group-input");
@@ -155,6 +164,7 @@ const progressFill = document.getElementById("progress-fill");
 
 const TOTAL_STEPS = 7;
 const MIN_WORDS = 5;
+const THIN_ANSWER_WORDS = 15;
 
 const BAD_WORDS = [
   "fuck", "fucking", "fucker", "shit", "shitty", "bitch", "bastard",
@@ -249,6 +259,7 @@ document.querySelectorAll(".type-btn").forEach((btn) => {
     state.index = 0;
     state.answers = {};
     state.questionVariant = {};
+    state.followupAsked = {};
     showScreen(screenPronoun);
     setProgress(1);
   });
@@ -315,6 +326,7 @@ function renderQuestion() {
   questionText.textContent = q.question;
   answerInput.value = state.answers[q.id] || "";
   answerError.classList.add("hidden");
+  hideFollowupPanel();
 
   backBtn.classList.toggle("hidden", state.index === 0);
   const isLast = state.index === questions.length - 1;
@@ -364,6 +376,81 @@ function validateAnswer(textValue) {
   return null;
 }
 
+let followupPendingQuestionId = null;
+let followupPendingProceed = null;
+
+function showFollowupPanel() {
+  questionNavButtons.classList.add("hidden");
+  followupPanel.classList.remove("hidden");
+  followupLoading.classList.remove("hidden");
+  followupContent.classList.add("hidden");
+  followupInput.value = "";
+}
+
+function hideFollowupPanel() {
+  followupPanel.classList.add("hidden");
+  questionNavButtons.classList.remove("hidden");
+}
+
+async function maybeShowFollowup(q, textValue, proceed) {
+  if (state.followupAsked[q.id] || countWords(textValue) >= THIN_ANSWER_WORDS) {
+    proceed();
+    return;
+  }
+
+  followupPendingQuestionId = q.id;
+  followupPendingProceed = proceed;
+  showFollowupPanel();
+
+  try {
+    const response = await fetch(`${API_URL}/api/followup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        report_type: state.reportType,
+        question_id: q.id,
+        answer: textValue,
+      }),
+    });
+    if (!response.ok) throw new Error("followup request failed");
+    const body = await response.json();
+
+    followupQuestionEl.textContent = body.question;
+    followupSuggestionsEl.innerHTML = "";
+    (body.suggestions || []).forEach((suggestion) => {
+      const li = document.createElement("li");
+      li.textContent = suggestion;
+      followupSuggestionsEl.appendChild(li);
+    });
+
+    followupLoading.classList.add("hidden");
+    followupContent.classList.remove("hidden");
+  } catch (err) {
+    state.followupAsked[q.id] = true;
+    hideFollowupPanel();
+    const resume = followupPendingProceed;
+    followupPendingQuestionId = null;
+    followupPendingProceed = null;
+    if (resume) resume();
+  }
+}
+
+followupContinueBtn.addEventListener("click", () => {
+  const extra = followupInput.value.trim();
+  if (followupPendingQuestionId) {
+    if (extra) {
+      state.answers[followupPendingQuestionId] =
+        `${state.answers[followupPendingQuestionId]} ${extra}`.trim();
+    }
+    state.followupAsked[followupPendingQuestionId] = true;
+  }
+  hideFollowupPanel();
+  const resume = followupPendingProceed;
+  followupPendingQuestionId = null;
+  followupPendingProceed = null;
+  if (resume) resume();
+});
+
 nextBtn.addEventListener("click", () => {
   const q = currentQuestion();
   const textValue = answerInput.value.trim();
@@ -374,10 +461,12 @@ nextBtn.addEventListener("click", () => {
     return;
   }
   state.answers[q.id] = textValue;
-  state.questionVariant[state.index] = 0;
-  state.index += 1;
-  renderQuestion();
-  saveAutosave();
+  maybeShowFollowup(q, textValue, () => {
+    state.questionVariant[state.index] = 0;
+    state.index += 1;
+    renderQuestion();
+    saveAutosave();
+  });
 });
 
 generateBtn.addEventListener("click", () => {
@@ -390,9 +479,11 @@ generateBtn.addEventListener("click", () => {
     return;
   }
   state.answers[q.id] = textValue;
-  showScreen(screenResult);
-  setProgress(TOTAL_STEPS);
-  generateDraft();
+  maybeShowFollowup(q, textValue, () => {
+    showScreen(screenResult);
+    setProgress(TOTAL_STEPS);
+    generateDraft();
+  });
 });
 
 regenerateBtn.addEventListener("click", () => {
@@ -439,6 +530,7 @@ resumeBtn.addEventListener("click", () => {
   state.index = saved.index;
   state.answers = saved.answers;
   state.questionVariant = saved.questionVariant;
+  state.followupAsked = {};
   showScreen(screenQuestion);
   renderQuestion();
 });
@@ -456,6 +548,7 @@ startOverBtn.addEventListener("click", () => {
   state.index = 0;
   state.answers = {};
   state.questionVariant = {};
+  state.followupAsked = {};
   state.previousDraft = null;
   state.lastTargetRange = null;
   document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));

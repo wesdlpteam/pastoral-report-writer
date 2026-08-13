@@ -349,6 +349,30 @@ input[type="text"]:focus-visible {
   margin-top: var(--space-sm);
 }
 
+.followup-panel {
+  margin-top: var(--space-lg);
+  background: var(--wes-tint-amber);
+  border-radius: 4px;
+  padding: var(--space-md);
+}
+
+.followup-question {
+  color: var(--wes-purple);
+  font-weight: 600;
+  margin: 0 0 var(--space-sm);
+}
+
+.followup-suggestions {
+  margin: 0 0 var(--space-md);
+  padding-left: 1.2rem;
+  color: var(--wes-ink-gold);
+  font-size: 0.9rem;
+}
+
+.followup-suggestions li {
+  margin-bottom: var(--space-xs);
+}
+
 .notes-details {
   margin-top: var(--space-lg);
   border: 2px solid var(--wes-neutral-300);
