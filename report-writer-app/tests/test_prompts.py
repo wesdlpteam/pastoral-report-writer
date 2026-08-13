@@ -68,7 +68,18 @@ def test_followup_system_prompt_requires_json_response():
     assert "question" in FOLLOWUP_SYSTEM_PROMPT.lower()
 
 
+def test_followup_system_prompt_targets_student_not_teacher():
+    lower = FOLLOWUP_SYSTEM_PROMPT.lower()
+    assert "about the student" in lower
+    assert "never" in lower and "teacher" in lower
+
+
 def test_build_followup_user_prompt_includes_label_and_answer():
     prompt = build_followup_user_prompt("The student as a person", "resilient and kind")
     assert "The student as a person" in prompt
     assert "resilient and kind" in prompt
+
+
+def test_build_followup_user_prompt_includes_pronouns():
+    prompt = build_followup_user_prompt("The student as a person", "resilient", pronouns="she/her")
+    assert "she/her" in prompt

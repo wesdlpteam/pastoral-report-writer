@@ -204,6 +204,24 @@ def test_followup_success(mock_generate_followup, client):
 
 
 @patch("app.generate_followup")
+def test_followup_passes_pronouns_to_prompt(mock_generate_followup, client):
+    mock_generate_followup.return_value = {"question": "q", "suggestions": []}
+
+    client.post(
+        "/api/followup",
+        json={
+            "report_type": "tutor",
+            "question_id": "person",
+            "answer": "kind and quiet",
+            "pronouns": "she/her",
+        },
+    )
+
+    _, user_prompt = mock_generate_followup.call_args[0]
+    assert "she/her" in user_prompt
+
+
+@patch("app.generate_followup")
 def test_followup_openai_failure_returns_502(mock_generate_followup, client):
     from openai_client import FollowupGenerationError
 

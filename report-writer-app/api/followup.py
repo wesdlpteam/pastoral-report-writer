@@ -31,6 +31,7 @@ def followup():
     report_type = data.get("report_type")
     question_id = data.get("question_id")
     answer = str(data.get("answer", "")).strip()
+    pronouns = data.get("pronouns", "they/them")
 
     if report_type not in ANSWER_LABELS:
         return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
@@ -40,7 +41,7 @@ def followup():
         return jsonify({"error": "answer is required"}), 400
 
     question_label = ANSWER_LABELS[report_type][question_id]
-    user_prompt = build_followup_user_prompt(question_label, answer)
+    user_prompt = build_followup_user_prompt(question_label, answer, pronouns)
 
     try:
         result = generate_followup(FOLLOWUP_SYSTEM_PROMPT, user_prompt)

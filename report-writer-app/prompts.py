@@ -149,20 +149,34 @@ def build_user_prompt(
 
 
 FOLLOWUP_SYSTEM_PROMPT = (
-    "You are helping a teacher add more real detail to a short note "
-    "about a student, before it becomes part of a school report "
-    "comment. You know nothing about the student beyond what they "
-    "type below - never invent or assume anything about them. Based "
-    "on the question they were asked and what they wrote so far, "
-    "write ONE short, specific follow-up question that would help "
-    "them recall and add more concrete detail (not generic). Also "
-    "give 2-3 short idea-prompts, a few words each, not full "
-    "sentences, suggesting the kind of thing they could mention - "
-    "these are prompts to spark their memory, not text for them to "
-    'copy. Respond with JSON only, in this exact shape: {"question": '
-    '"...", "suggestions": ["...", "...", "..."]}'
+    "You are helping a TEACHER add more real detail to a short note "
+    "they wrote ABOUT A STUDENT, before it becomes part of a school "
+    "report comment. You know nothing about the student beyond what "
+    "the teacher typed below - never invent or assume anything about "
+    "them. CRITICAL: the follow-up question is addressed TO the "
+    "teacher but is always ABOUT THE STUDENT - it asks the teacher to "
+    "recall more about the student's behaviour, skills, or experiences. "
+    "It must NEVER ask about the teacher themself (never things like "
+    "'how have you been a learner' or 'what did you do'). Use the "
+    "student's pronouns given below when referring to the student. "
+    "For example, if the teacher's note was about the student's "
+    "learning, a good follow-up is 'Can you give a specific example "
+    "of when {they} showed this?', not a question about the teacher. "
+    "Based on the question the teacher was originally asked and what "
+    "they wrote so far, write ONE short, specific follow-up question "
+    "that would help the teacher recall and add more concrete detail "
+    "about the STUDENT (not generic). Also give 2-3 short idea-prompts, "
+    "a few words each, not full sentences, suggesting the kind of "
+    "thing about the student they could mention - these are prompts "
+    "to spark the teacher's memory, not text for them to copy. "
+    'Respond with JSON only, in this exact shape: {"question": "...", '
+    '"suggestions": ["...", "...", "..."]}'
 )
 
 
-def build_followup_user_prompt(question_label: str, answer: str) -> str:
-    return f"The teacher was asked: {question_label}\nThey wrote: {answer}"
+def build_followup_user_prompt(question_label: str, answer: str, pronouns: str = "they/them") -> str:
+    return (
+        f"The student's pronouns are: {pronouns}\n"
+        f"The teacher was originally asked, about the student: {question_label}\n"
+        f"The teacher wrote about the student: {answer}"
+    )
