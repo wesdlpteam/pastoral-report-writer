@@ -38,3 +38,37 @@ def has_low_word_diversity(text: str) -> bool:
         return False
     distinct = len(set(words))
     return (distinct / len(words)) <= 0.4
+
+
+COMMON_CAPITALIZED_WORDS = {
+    "i", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "january", "february", "march", "april", "may", "june", "july", "august",
+    "september", "october", "november", "december",
+    "term", "semester", "wesley", "college", "house", "tutor", "group",
+    "english", "maths", "mathematics", "science", "pe", "art", "music", "drama",
+    "hass", "hpe", "naplan", "ib", "pyp", "myp", "dp",
+    "adamson", "corrigan", "irving", "way",
+    "roar", "respect", "opportunity", "achievement", "resilience",
+    "inquirer", "knowledgeable", "thinker", "communicator", "principled",
+    "caring", "balanced", "reflective",
+    # common sentence-starting words, so ordinary writing isn't flagged
+    "he", "she", "they", "it", "this", "that", "these", "those", "his", "her",
+    "their", "its", "the", "a", "an", "when", "while", "during", "after",
+    "before", "although", "since", "as", "overall", "throughout", "recently",
+    "despite", "in", "on", "at", "with", "sometimes", "often", "generally",
+    "occasionally", "however", "also", "both", "even", "given", "due",
+    "because", "whenever", "once", "unless", "whether", "each", "every",
+    "some", "most", "many", "several", "all", "there", "here", "we", "you",
+    "if", "so", "and", "but", "yet", "still", "then", "though", "having",
+}
+
+
+def _looks_like_name(word: str) -> bool:
+    clean = re.sub(r"[^A-Za-z]", "", word)
+    if not re.match(r"^[A-Z][a-z]+$", clean):
+        return False
+    return clean.lower() not in COMMON_CAPITALIZED_WORDS
+
+
+def find_possible_names(text: str) -> list:
+    return [word for word in text.split() if _looks_like_name(word)]

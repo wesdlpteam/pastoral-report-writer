@@ -5,6 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, jsonify, request
 
+from content_filter import find_possible_names
 from openai_client import FollowupGenerationError, generate_followup
 from prompts import ANSWER_LABELS, FOLLOWUP_SYSTEM_PROMPT, build_followup_user_prompt
 
@@ -39,6 +40,10 @@ def followup():
         return jsonify({"error": "unknown question_id for this report_type"}), 400
     if not answer:
         return jsonify({"error": "answer is required"}), 400
+    if find_possible_names(answer):
+        return jsonify(
+            {"error": "please describe the student without using their name"}
+        ), 400
 
     question_label = ANSWER_LABELS[report_type][question_id]
     user_prompt = build_followup_user_prompt(question_label, answer, pronouns)

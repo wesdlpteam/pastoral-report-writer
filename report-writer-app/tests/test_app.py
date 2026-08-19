@@ -142,6 +142,35 @@ def test_generate_answer_with_bad_word(client):
     assert "inappropriate language" in response.get_json()["error"]
 
 
+def test_generate_answer_with_possible_name(client):
+    response = client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "answers": {
+                "person": "Jordan is kind and resilient with peers",
+                "learner": "",
+                "participant": "",
+            },
+        },
+    )
+    assert response.status_code == 400
+    assert "without using their name" in response.get_json()["error"]
+
+
+def test_followup_answer_with_possible_name(client):
+    response = client.post(
+        "/api/followup",
+        json={
+            "report_type": "tutor",
+            "question_id": "person",
+            "answer": "Jordan is kind and resilient",
+        },
+    )
+    assert response.status_code == 400
+    assert "without using their name" in response.get_json()["error"]
+
+
 @patch("app.generate_draft")
 def test_generate_success_pyp(mock_generate_draft, client):
     mock_generate_draft.return_value = " ".join(["word"] * 200)

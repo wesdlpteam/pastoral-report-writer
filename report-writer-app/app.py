@@ -4,7 +4,12 @@ load_dotenv()
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from content_filter import find_bad_words, find_gibberish_words, has_low_word_diversity
+from content_filter import (
+    find_bad_words,
+    find_gibberish_words,
+    find_possible_names,
+    has_low_word_diversity,
+)
 from openai_client import (
     DraftGenerationError,
     FollowupGenerationError,
@@ -62,6 +67,10 @@ def generate():
             return jsonify({"error": "one of your answers doesn't look like real text, please rewrite it"}), 400
         if has_low_word_diversity(text):
             return jsonify({"error": "one of your answers looks like repeated filler text, please write a genuine response"}), 400
+        if find_possible_names(text):
+            return jsonify(
+                {"error": "please describe the student without using their name"}
+            ), 400
 
     system_prompt = build_system_prompt(report_type, pronouns)
     user_prompt = build_user_prompt(
@@ -102,6 +111,10 @@ def followup():
         return jsonify({"error": "unknown question_id for this report_type"}), 400
     if not answer:
         return jsonify({"error": "answer is required"}), 400
+    if find_possible_names(answer):
+        return jsonify(
+            {"error": "please describe the student without using their name"}
+        ), 400
 
     question_label = ANSWER_LABELS[report_type][question_id]
     user_prompt = build_followup_user_prompt(question_label, answer, pronouns)

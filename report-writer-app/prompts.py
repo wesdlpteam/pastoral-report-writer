@@ -21,7 +21,11 @@ HALLUCINATION_GUARD = (
     "content. Do not copy phrases from the examples provided. Instead, "
     "reshape the teacher's own language into Wesley's voice. If a "
     "teacher answer is empty or missing, simply omit that topic from "
-    "the report rather than inventing details."
+    "the report rather than inventing details. NAMES: if the notes "
+    "below happen to contain the student's real name anywhere (they "
+    "should not, but check), NEVER print that real name in your "
+    "output - always write \"[student name]\" instead, exactly as "
+    "instructed below."
 )
 
 CONTEXT_REQUIREMENT = (
