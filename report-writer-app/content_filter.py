@@ -70,5 +70,12 @@ def _looks_like_name(word: str) -> bool:
     return clean.lower() not in COMMON_CAPITALIZED_WORDS
 
 
-def find_possible_names(text: str) -> list:
-    return [word for word in text.split() if _looks_like_name(word)]
+def redact_possible_names(text: str) -> str:
+    def replace(word):
+        if not _looks_like_name(word):
+            return word
+        leading = re.match(r"^[^A-Za-z]*", word).group()
+        trailing = re.search(r"[^A-Za-z]*$", word).group()
+        return f"{leading}[student name]{trailing}"
+
+    return " ".join(replace(word) for word in text.split())

@@ -8,8 +8,8 @@ from flask import Flask, jsonify, request
 from content_filter import (
     find_bad_words,
     find_gibberish_words,
-    find_possible_names,
     has_low_word_diversity,
+    redact_possible_names,
 )
 from openai_client import DraftGenerationError, generate_draft
 from prompts import build_system_prompt, build_user_prompt
@@ -67,13 +67,13 @@ def generate():
             return jsonify({"error": "one of your answers doesn't look like real text, please rewrite it"}), 400
         if has_low_word_diversity(text):
             return jsonify({"error": "one of your answers looks like repeated filler text, please write a genuine response"}), 400
-        if find_possible_names(text):
-            return jsonify(
-                {"error": "please describe the student without using their name"}
-            ), 400
+
+    redacted_answers = {k: redact_possible_names(str(v)) for k, v in answers.items()}
 
     system_prompt = build_system_prompt(report_type, pronouns)
-    user_prompt = build_user_prompt(report_type, answers, pronouns, tutor_group, house, adjust)
+    user_prompt = build_user_prompt(
+        report_type, redacted_answers, pronouns, tutor_group, house, adjust
+    )
 
     try:
         draft = generate_draft(system_prompt, user_prompt)

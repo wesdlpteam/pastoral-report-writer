@@ -7,8 +7,8 @@ from flask import Flask, jsonify, request, send_from_directory
 from content_filter import (
     find_bad_words,
     find_gibberish_words,
-    find_possible_names,
     has_low_word_diversity,
+    redact_possible_names,
 )
 from openai_client import (
     DraftGenerationError,
@@ -67,14 +67,12 @@ def generate():
             return jsonify({"error": "one of your answers doesn't look like real text, please rewrite it"}), 400
         if has_low_word_diversity(text):
             return jsonify({"error": "one of your answers looks like repeated filler text, please write a genuine response"}), 400
-        if find_possible_names(text):
-            return jsonify(
-                {"error": "please describe the student without using their name"}
-            ), 400
+
+    redacted_answers = {k: redact_possible_names(str(v)) for k, v in answers.items()}
 
     system_prompt = build_system_prompt(report_type, pronouns)
     user_prompt = build_user_prompt(
-        report_type, answers, pronouns, tutor_group, house, adjust
+        report_type, redacted_answers, pronouns, tutor_group, house, adjust
     )
 
     try:
@@ -111,13 +109,11 @@ def followup():
         return jsonify({"error": "unknown question_id for this report_type"}), 400
     if not answer:
         return jsonify({"error": "answer is required"}), 400
-    if find_possible_names(answer):
-        return jsonify(
-            {"error": "please describe the student without using their name"}
-        ), 400
 
     question_label = ANSWER_LABELS[report_type][question_id]
-    user_prompt = build_followup_user_prompt(question_label, answer, pronouns)
+    user_prompt = build_followup_user_prompt(
+        question_label, redact_possible_names(answer), pronouns
+    )
 
     try:
         result = generate_followup(FOLLOWUP_SYSTEM_PROMPT, user_prompt)

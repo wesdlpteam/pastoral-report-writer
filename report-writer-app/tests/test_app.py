@@ -142,7 +142,10 @@ def test_generate_answer_with_bad_word(client):
     assert "inappropriate language" in response.get_json()["error"]
 
 
-def test_generate_answer_with_possible_name(client):
+@patch("app.generate_draft")
+def test_generate_redacts_possible_name_before_sending(mock_generate_draft, client):
+    mock_generate_draft.return_value = " ".join(["word"] * 120)
+
     response = client.post(
         "/api/generate",
         json={
@@ -154,11 +157,17 @@ def test_generate_answer_with_possible_name(client):
             },
         },
     )
-    assert response.status_code == 400
-    assert "without using their name" in response.get_json()["error"]
+
+    assert response.status_code == 200
+    _, user_prompt = mock_generate_draft.call_args[0]
+    assert "Jordan" not in user_prompt
+    assert "[student name]" in user_prompt
 
 
-def test_followup_answer_with_possible_name(client):
+@patch("app.generate_followup")
+def test_followup_redacts_possible_name_before_sending(mock_generate_followup, client):
+    mock_generate_followup.return_value = {"question": "q", "suggestions": []}
+
     response = client.post(
         "/api/followup",
         json={
@@ -167,8 +176,11 @@ def test_followup_answer_with_possible_name(client):
             "answer": "Jordan is kind and resilient",
         },
     )
-    assert response.status_code == 400
-    assert "without using their name" in response.get_json()["error"]
+
+    assert response.status_code == 200
+    _, user_prompt = mock_generate_followup.call_args[0]
+    assert "Jordan" not in user_prompt
+    assert "[student name]" in user_prompt
 
 
 @patch("app.generate_draft")
