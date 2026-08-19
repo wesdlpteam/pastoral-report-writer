@@ -206,37 +206,6 @@ function hasLowWordDiversity(text) {
   return distinct / words.length <= 0.4;
 }
 
-const COMMON_CAPITALIZED_WORDS = new Set([
-  "i", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
-  "january", "february", "march", "april", "may", "june", "july", "august",
-  "september", "october", "november", "december",
-  "term", "semester", "wesley", "college", "house", "tutor", "group",
-  "english", "maths", "mathematics", "science", "pe", "art", "music", "drama",
-  "hass", "hpe", "naplan", "ib", "pyp", "myp", "dp",
-  "adamson", "corrigan", "irving", "way",
-  "roar", "respect", "opportunity", "achievement", "resilience",
-  "inquirer", "knowledgeable", "thinker", "communicator", "principled",
-  "caring", "balanced", "reflective",
-  "he", "she", "they", "it", "this", "that", "these", "those", "his", "her",
-  "their", "its", "the", "a", "an", "when", "while", "during", "after",
-  "before", "although", "since", "as", "overall", "throughout", "recently",
-  "despite", "in", "on", "at", "with", "sometimes", "often", "generally",
-  "occasionally", "however", "also", "both", "even", "given", "due",
-  "because", "whenever", "once", "unless", "whether", "each", "every",
-  "some", "most", "many", "several", "all", "there", "here", "we", "you",
-  "if", "so", "and", "but", "yet", "still", "then", "though", "having",
-]);
-
-function looksLikeName(word) {
-  const clean = word.replace(/[^A-Za-z]/g, "");
-  if (!/^[A-Z][a-z]+$/.test(clean)) return false;
-  return !COMMON_CAPITALIZED_WORDS.has(clean.toLowerCase());
-}
-
-function findPossibleNames(text) {
-  return text.split(/\s+/).filter(Boolean).filter(looksLikeName);
-}
-
 function setProgress(stepIndex) {
   const pct = Math.min(1, Math.max(0, stepIndex / TOTAL_STEPS));
   progressFill.style.transform = `scaleX(${pct})`;
@@ -404,9 +373,6 @@ function validateAnswer(textValue) {
   if (hasLowWordDiversity(textValue)) {
     return "This looks like repeated filler text. Please write a genuine response.";
   }
-  if (findPossibleNames(textValue).length) {
-    return "Please describe the student without using their name.";
-  }
   return null;
 }
 
@@ -476,11 +442,10 @@ followupContinueBtn.addEventListener("click", () => {
     extra &&
     (findBadWords(extra).length ||
       findGibberishWords(extra).length ||
-      hasLowWordDiversity(extra) ||
-      findPossibleNames(extra).length)
+      hasLowWordDiversity(extra))
   ) {
     answerError.textContent =
-      "Please check what you added doesn't include names, swearing, or nonsense text.";
+      "Please check what you added doesn't include swearing or nonsense text.";
     answerError.classList.remove("hidden");
     return;
   }
