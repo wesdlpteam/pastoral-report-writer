@@ -42,12 +42,12 @@ const QUESTIONS = {
     ],
     [
       {
-        id: "next_steps",
-        question: "Has the student set any goals or talked about what they want to focus on next?",
+        id: "summary",
+        question: "What's a fitting summarising comment for this student? (their development, engagement with peers, leadership, Education Outdoors, or goals for next term)",
       },
       {
-        id: "next_steps",
-        question: "What has been a highlight or memorable moment for this student this term?",
+        id: "summary",
+        question: "What has been a highlight, memorable moment, or general observation about this student this term?",
       },
     ],
   ],
