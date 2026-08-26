@@ -4,6 +4,7 @@ const API_URL = window.location.hostname === "localhost"
 
 const LS_TUTOR_GROUP = "pastoralLastTutorGroup";
 const LS_HOUSE = "pastoralLastHouse";
+const LS_YEAR_LEVEL = "pastoralLastYearLevel";
 const LS_AUTOSAVE = "pastoralAutosave";
 const LS_WELCOME_SEEN = "pastoralWelcomeSeen";
 
@@ -55,6 +56,7 @@ const QUESTIONS = {
 const state = {
   reportType: null,
   pronoun: null,
+  yearLevel: null,
   tutorGroup: null,
   house: null,
   index: 0,
@@ -91,6 +93,7 @@ const followupInput = document.getElementById("followup-input");
 const followupContinueBtn = document.getElementById("followup-continue-btn");
 const pronounNextBtn = document.getElementById("pronoun-next-btn");
 const contextNextBtn = document.getElementById("context-next-btn");
+const yearLevelSelect = document.getElementById("year-level-select");
 const tutorGroupInput = document.getElementById("tutor-group-input");
 const houseInput = document.getElementById("house-input");
 const contextRememberedNote = document.getElementById("context-remembered-note");
@@ -177,6 +180,7 @@ function saveAutosave() {
     JSON.stringify({
       reportType: state.reportType,
       pronoun: state.pronoun,
+      yearLevel: state.yearLevel,
       tutorGroup: state.tutorGroup,
       house: state.house,
       index: state.index,
@@ -202,9 +206,11 @@ function loadAutosave() {
 function prefillContext() {
   const savedTutorGroup = localStorage.getItem(LS_TUTOR_GROUP);
   const savedHouse = localStorage.getItem(LS_HOUSE);
-  if (savedTutorGroup || savedHouse) {
+  const savedYearLevel = localStorage.getItem(LS_YEAR_LEVEL);
+  if (savedTutorGroup || savedHouse || savedYearLevel) {
     tutorGroupInput.value = savedTutorGroup || "";
     houseInput.value = savedHouse || "";
+    yearLevelSelect.value = savedYearLevel || "";
     contextRememberedNote.classList.remove("hidden");
   } else {
     contextRememberedNote.classList.add("hidden");
@@ -238,11 +244,15 @@ pronounNextBtn.addEventListener("click", () => {
 contextNextBtn.addEventListener("click", () => {
   state.tutorGroup = tutorGroupInput.value.trim() || "(not specified)";
   state.house = houseInput.value.trim() || "(not specified)";
+  state.yearLevel = yearLevelSelect.value || null;
   if (state.tutorGroup !== "(not specified)") {
     localStorage.setItem(LS_TUTOR_GROUP, state.tutorGroup);
   }
   if (state.house !== "(not specified)") {
     localStorage.setItem(LS_HOUSE, state.house);
+  }
+  if (state.yearLevel) {
+    localStorage.setItem(LS_YEAR_LEVEL, state.yearLevel);
   }
   showScreen(screenQuestion);
   renderQuestion();
@@ -485,6 +495,7 @@ resumeBtn.addEventListener("click", () => {
   if (!saved) return;
   state.reportType = saved.reportType;
   state.pronoun = saved.pronoun;
+  state.yearLevel = saved.yearLevel || null;
   state.tutorGroup = saved.tutorGroup;
   state.house = saved.house;
   state.index = saved.index;
@@ -503,6 +514,7 @@ discardResumeBtn.addEventListener("click", () => {
 startOverBtn.addEventListener("click", () => {
   state.reportType = "tutor";
   state.pronoun = null;
+  state.yearLevel = null;
   state.tutorGroup = null;
   state.house = null;
   state.index = 0;
@@ -621,6 +633,7 @@ async function generateDraft(adjust) {
       body: JSON.stringify({
         report_type: state.reportType,
         pronouns: state.pronoun,
+        year_level: state.yearLevel,
         tutor_group: state.tutorGroup,
         house: state.house,
         answers: payloadAnswers,

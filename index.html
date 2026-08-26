@@ -60,7 +60,18 @@
       <h2>Student's Tutor Group and House</h2>
       <p id="context-remembered-note" class="context-hint hidden">Prefilled from your last student, change if this one's different.</p>
       <div style="margin-top: 1.5rem;">
-        <label class="freetext-label" for="tutor-group-input">Tutor Group (e.g., 7A, 11D):</label>
+        <label class="freetext-label" for="year-level-select">Year level:</label>
+        <select id="year-level-select" style="margin-top: 0.5rem;">
+          <option value="">-- Not specified --</option>
+          <option value="7">Year 7</option>
+          <option value="8">Year 8</option>
+          <option value="9">Year 9</option>
+          <option value="10">Year 10</option>
+          <option value="11">Year 11</option>
+          <option value="12">Year 12</option>
+        </select>
+
+        <label class="freetext-label" for="tutor-group-input" style="margin-top: 1rem;">Tutor Group (e.g., 7A, 11D):</label>
         <input type="text" id="tutor-group-input" placeholder="e.g., 7A" style="margin-top: 0.5rem;">
 
         <label class="freetext-label" for="house-input" style="margin-top: 1rem;">House (e.g., Adamson, Corrigan, Irving, Way):</label>
@@ -134,7 +145,7 @@
    </div>
   </main>
 
-  <p class="app-version">v2026.08.19-7</p>
+  <p class="app-version">v2026.08.19-8</p>
 
   <script src="script.js"></script>
 </body>
