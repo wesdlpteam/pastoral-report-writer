@@ -38,6 +38,57 @@ STYLE_GUIDE_NOTES = (
     'use the actual title of the production rather than "Theatre".'
 )
 
+WESLEY_GRAMMAR_STYLE_NOTES = (
+    "Further Wesley College style rules. Capitalisation: \"Term 1\" "
+    "(capital T, number 1); subject and department names (Drama, "
+    "Music, French, Mathematics) take a capital, but general "
+    "principles do not, e.g. \"mathematical principles\" or "
+    "\"linguistic difficulties\" stay lowercase; titles like Homeroom "
+    "Teacher, Tutor, and Principal begin with a capital letter. "
+    "Sports teams: capitalise properly, e.g. \"First VI Volleyball\", "
+    "\"Second XI Soccer\" - never use \"1st\" etc. except for a "
+    "result like \"1st place\"; the name of a sport itself stays "
+    "lower case, e.g. \"Jane represented Adamson House in volleyball "
+    "and tennis.\" Do not hyphenate: cocurricular, onstage, "
+    "coeducation, coordinate, coordinator, cooperate, email. Write as "
+    "one word: somewhat, overcome, website, handwriting. Write as two "
+    "words: schoolwork, homework."
+    ' Spelling: "practise" is the verb, "practice" is the noun (e.g. '
+    '"she should practise her writing" but "it is common practice"); '
+    '"effect" is usually the noun and "affect" the verb; "advice" is '
+    'the noun and "advise" the verb; "complimentary" means flattering, '
+    '"complementary" means things that go together; "conscientious" '
+    "means hard-working. If referencing an IB assessment criterion, "
+    'capitalise it, e.g. "Criterion A", and only use "criteria" for '
+    "two or more."
+    " Punctuation: no space before a comma, full stop, or other "
+    "punctuation mark; no full stop after Mr, Ms, or Mrs. For "
+    "possessives, a singular owner takes 's (a boy's hat) and a "
+    "plural owner takes s' (two boys' hats); a name ending in s still "
+    "takes 's (James's work). When \"however\" joins two related "
+    "sentences it is preceded by a semicolon (or comma) and followed "
+    'by a comma, e.g. "...is strong; however, her presentation needs '
+    'work." At the start of a sentence, "however" is followed by a '
+    "comma."
+    " Acronyms do not need full stops between letters (VCE, MYP). "
+    "Spell out a term in full the first time it is used, with the "
+    "acronym in brackets immediately after, then use the acronym for "
+    "the rest of the report - unless the acronym is already extremely "
+    "well known (e.g. VCE) or its meaning is already obvious from the "
+    "subject title given, in which case the full form is not needed."
+    " Every sentence needs a verb, and the verb must agree with its "
+    "subject in number. Make sure any participle (a describing word "
+    "ending in -ing) clearly refers to the person doing the action, "
+    "not to something else in the sentence."
+    ' Useful synonyms for variety: instead of "developing" try '
+    '"increasing" or "broadening"; instead of "however" try "although" '
+    'or "whilst"; instead of "understands" try "comprehends" or '
+    '"grasps"; instead of "shows" try "portrays", "demonstrates", or '
+    '"expresses"; instead of "excellent" try "broad", '
+    '"well-developed", or "advanced"; instead of "good" try "sound", '
+    '"satisfactory", or "fair".'
+)
+
 HALLUCINATION_GUARD = (
     "CRITICAL: Use ONLY the information the teacher provided in their "
     "answers below. You MAY elaborate on, rephrase, add context to, or "
@@ -107,7 +158,14 @@ ANSWER_LABELS = {
 def build_system_prompt(report_type: str, pronouns: str = "they/them", year_level: str = None) -> str:
     low, high = get_range(report_type)
     rules = REPORT_RULES[report_type].format(low=low, high=high, pronouns=pronouns)
-    parts = [HALLUCINATION_GUARD, CONTEXT_REQUIREMENT, rules, STYLE_GUIDE_NOTES, TONE_GUARD]
+    parts = [
+        HALLUCINATION_GUARD,
+        CONTEXT_REQUIREMENT,
+        rules,
+        STYLE_GUIDE_NOTES,
+        WESLEY_GRAMMAR_STYLE_NOTES,
+        TONE_GUARD,
+    ]
 
     if str(year_level) in {"7", "8", "9", "10"}:
         parts.append(MYP_LEARNER_PROFILE_NOTE)

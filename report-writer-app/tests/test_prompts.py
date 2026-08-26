@@ -6,6 +6,16 @@ from prompts import (
 )
 
 
+def test_build_system_prompt_includes_wesley_grammar_style_rules():
+    prompt = build_system_prompt("tutor")
+    assert "First VI Volleyball" in prompt
+    assert '"practise" is the verb' in prompt
+    assert "James's work" in prompt
+    assert "however" in prompt.lower() and "semicolon" in prompt
+    assert "Spell out a term in full" in prompt
+    assert "broadening" in prompt
+
+
 def test_build_system_prompt_tutor_has_word_range():
     prompt = build_system_prompt("tutor")
     assert "100-150 words" in prompt
