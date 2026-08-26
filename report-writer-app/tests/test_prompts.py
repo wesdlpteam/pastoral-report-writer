@@ -11,6 +11,25 @@ def test_build_system_prompt_tutor_has_word_range():
     assert "100-150 words" in prompt
 
 
+def test_build_system_prompt_includes_myp_subject_names():
+    prompt = build_system_prompt("tutor")
+    assert "Language and Literature" in prompt
+    assert "Individuals and Societies" in prompt
+
+
+def test_build_system_prompt_includes_digital_tool_formatting():
+    prompt = build_system_prompt("tutor")
+    assert "PowerPoint" in prompt
+    assert "Microsoft Word" in prompt
+    assert "Paint Shop Pro" in prompt
+    assert "generalise it away" in prompt
+
+
+def test_build_system_prompt_includes_title_italics_convention():
+    prompt = build_system_prompt("tutor")
+    assert "*To Kill a Mockingbird*" in prompt
+
+
 def test_build_system_prompt_tutor_includes_examples():
     prompt = build_system_prompt("tutor")
     assert "Example 1:" in prompt

@@ -8,7 +8,19 @@ STYLE_GUIDE_NOTES = (
     'and "Tutor Group" (two words, not class or tutorial group); use '
     "Australian English spelling (organisation, colour); avoid jargon "
     "and keep sentences clear; capitalise House when referring to the "
-    "school house system."
+    "school house system. Use correct full MYP subject names, not "
+    'abbreviations or informal names, e.g. "Language and Literature" '
+    'not "English", "Individuals and Societies" not "Humanities", '
+    '"Physical and Health Education" not "PE". If the teacher names a '
+    "specific digital tool, program, or app, keep it in the draft "
+    "exactly as mentioned - never generalise it away into something "
+    'vague like "a computer program" - and use its correct official '
+    'capitalisation, for example: "PowerPoint" (one word, capital P), '
+    '"Microsoft Word" (two words, capital M and capital W), "Paint '
+    'Shop Pro" (three words, each capitalised). Wrap the titles of '
+    "novels, films, or other creative works in asterisks so they can "
+    "be italicised after pasting into Word, e.g. *To Kill a "
+    "Mockingbird*."
 )
 
 HALLUCINATION_GUARD = (

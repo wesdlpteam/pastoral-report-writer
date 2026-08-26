@@ -110,6 +110,7 @@ const wordCountText = document.getElementById("word-count-text");
 const shortenBtn = document.getElementById("shorten-btn");
 const lengthenBtn = document.getElementById("lengthen-btn");
 const checklistNote = document.getElementById("checklist-note");
+const namingGuide = document.getElementById("naming-guide");
 const copyBtn = document.getElementById("copy-btn");
 const regenerateBtn = document.getElementById("regenerate-btn");
 const usePreviousBtn = document.getElementById("use-previous-btn");
@@ -516,6 +517,7 @@ startOverBtn.addEventListener("click", () => {
   shortenBtn.classList.add("hidden");
   lengthenBtn.classList.add("hidden");
   checklistNote.classList.add("hidden");
+  namingGuide.classList.add("hidden");
   notesDetails.classList.add("hidden");
   resumeBanner.classList.add("hidden");
   clearAutosave();
@@ -648,6 +650,7 @@ async function generateDraft(adjust) {
     copyBtn.classList.remove("hidden");
     regenerateBtn.classList.remove("hidden");
     checklistNote.classList.remove("hidden");
+    namingGuide.classList.remove("hidden");
     renderNotesList(payloadAnswers);
     clearAutosave();
 
