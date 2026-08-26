@@ -20,7 +20,22 @@ STYLE_GUIDE_NOTES = (
     'Shop Pro" (three words, each capitalised). Wrap the titles of '
     "novels, films, or other creative works in asterisks so they can "
     "be italicised after pasting into Word, e.g. *To Kill a "
-    "Mockingbird*."
+    "Mockingbird*. Title formatting: write \"Units 3 & 4\" not \"Unit "
+    '3/4"; "Years 7 & 8" not "Year 7 & 8"; "Year 10" not "Y10"; '
+    '"Senior School" not "SS"; "Middle School" not "MS"; write '
+    '"Homeroom" as one word and "Tutor Group" as two words; use '
+    '"peers", "class members", or "others" instead of "classmates". '
+    "If the teacher mentions a specific award, ensemble, event, or "
+    "leadership title, keep it exactly as named and capitalised, for "
+    "example: Middle School Award for Citizenship / Endeavour / "
+    "Special Achievement; Middle School Award for Academic "
+    "Achievement or General Excellence; Principal's Honour Roll; "
+    "Senior School Colours, College Colours, or Honour Colours; Stage "
+    "Band, Concert Band, TJ Band, Wastell Strings, Dolce Canto Choir, "
+    "Wilkie Orchestra; Autumn Music Concert, BMW Edge Concert, winter "
+    "music camp; Senior School Prefect, Junior School Leader, Middle "
+    "School Leader, Middle School Executive. For a theatre production, "
+    'use the actual title of the production rather than "Theatre".'
 )
 
 HALLUCINATION_GUARD = (

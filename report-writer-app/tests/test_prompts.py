@@ -36,6 +36,15 @@ def test_build_system_prompt_theme_three_is_tutor_group_participation():
     assert "achievements, participation, leadership" not in prompt
 
 
+def test_build_system_prompt_includes_title_formatting_rules():
+    prompt = build_system_prompt("tutor")
+    assert "Units 3 & 4" in prompt
+    assert "Years 7 & 8" in prompt
+    assert "Senior School" in prompt and "not \"SS\"" in prompt
+    assert "class members" in prompt
+    assert "Principal's Honour Roll" in prompt
+
+
 def test_build_system_prompt_tutor_includes_examples():
     prompt = build_system_prompt("tutor")
     assert "Example 1:" in prompt
