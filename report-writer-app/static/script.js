@@ -68,7 +68,6 @@ const state = {
 const screenWelcome = document.getElementById("screen-welcome");
 const welcomeStartBtn = document.getElementById("welcome-start-btn");
 
-const screenSelect = document.getElementById("screen-select");
 const screenPronoun = document.getElementById("screen-pronouns");
 const screenContext = document.getElementById("screen-context");
 const screenQuestion = document.getElementById("screen-question");
@@ -211,18 +210,6 @@ function prefillContext() {
   }
 }
 
-document.querySelectorAll(".type-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    state.reportType = btn.dataset.type;
-    state.index = 0;
-    state.answers = {};
-    state.questionVariant = {};
-    state.followupAsked = {};
-    showScreen(screenPronoun);
-    setProgress(1);
-  });
-});
-
 document.querySelectorAll(".pronoun-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));
@@ -262,7 +249,7 @@ contextNextBtn.addEventListener("click", () => {
 });
 
 function showScreen(screen) {
-  [screenWelcome, screenSelect, screenPronoun, screenContext, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
+  [screenWelcome, screenPronoun, screenContext, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
   screen.classList.remove("hidden");
 }
 
@@ -513,7 +500,7 @@ discardResumeBtn.addEventListener("click", () => {
 });
 
 startOverBtn.addEventListener("click", () => {
-  state.reportType = null;
+  state.reportType = "tutor";
   state.pronoun = null;
   state.tutorGroup = null;
   state.house = null;
@@ -532,8 +519,8 @@ startOverBtn.addEventListener("click", () => {
   notesDetails.classList.add("hidden");
   resumeBanner.classList.add("hidden");
   clearAutosave();
-  showScreen(screenSelect);
-  setProgress(0);
+  showScreen(screenPronoun);
+  setProgress(1);
 });
 
 function applyDraftResult(result) {
@@ -685,11 +672,15 @@ function checkResumeBanner() {
 
 welcomeStartBtn.addEventListener("click", () => {
   localStorage.setItem(LS_WELCOME_SEEN, "1");
-  showScreen(screenSelect);
+  state.reportType = "tutor";
+  showScreen(screenPronoun);
+  setProgress(1);
   checkResumeBanner();
 });
 
 if (localStorage.getItem(LS_WELCOME_SEEN)) {
-  showScreen(screenSelect);
+  state.reportType = "tutor";
+  showScreen(screenPronoun);
+  setProgress(1);
   checkResumeBanner();
 }
