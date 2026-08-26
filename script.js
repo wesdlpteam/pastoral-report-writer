@@ -31,12 +31,12 @@ const QUESTIONS = {
     ],
     [
       {
-        id: "achievement",
-        question: "What achievements, participation, or leadership stand out this term? (sports, music, House involvement, academic awards)",
+        id: "participant",
+        question: "How does this student engage with the Tutor Group? Do they contribute to discussions and activities, or support their peers?",
       },
       {
-        id: "achievement",
-        question: "What cocurricular activities engage them? (sports, music, clubs, House events)",
+        id: "participant",
+        question: "What role do they play within the Tutor Group community? (e.g. supportive peer, active participant, quiet contributor)",
       },
     ],
     [
