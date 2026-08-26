@@ -83,8 +83,11 @@ REPORT_RULES = {
         "(3) the student as a participant in the Tutor Group - their "
         "engagement with, and contribution to, Tutor Group discussions "
         "and activities, and how they support their peers; (4) a "
-        "forward-focused closing about their "
-        "goals or next steps for development. Use pronouns {pronouns} "
+        "summarising comment - this may reflect on the student's "
+        "chosen development stage or a Student Reflection Rubric "
+        "element, other observations you have made as their Tutor, or "
+        "how they have engaged with peers, Education Outdoors, or "
+        "leadership positions this term. Use pronouns {pronouns} "
         "throughout. Write in third person, past tense where natural, and "
         'always refer to the student as "[student name]" - never invent '
         "a real name."
@@ -96,7 +99,7 @@ ANSWER_LABELS = {
         "person": "The student as a person (character, ROAR values, peer interaction)",
         "learner": "The student as a learner (academic progress, approach to learning)",
         "participant": "The student as a participant in the Tutor Group (engagement, contribution to discussions/activities, peer support)",
-        "next_steps": "Student's goals or next focus area",
+        "summary": "A summarising comment (development stage, Reflection Rubric element, peer engagement, leadership, Education Outdoors, or other observations)",
     },
 }
 

@@ -35,6 +35,14 @@ def test_build_system_prompt_myp_note_hidden_when_no_year_level():
     assert "Learner Profile" not in prompt
 
 
+def test_build_system_prompt_theme_four_is_broad_summarising_comment():
+    prompt = build_system_prompt("tutor")
+    assert "summarising comment" in prompt
+    assert "Student Reflection Rubric" in prompt
+    assert "Education Outdoors" in prompt
+    assert "goals or next steps for development" not in prompt
+
+
 def test_build_system_prompt_includes_digital_tool_formatting():
     prompt = build_system_prompt("tutor")
     assert "PowerPoint" in prompt
