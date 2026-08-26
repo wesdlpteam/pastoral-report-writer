@@ -30,6 +30,12 @@ def test_build_system_prompt_includes_title_italics_convention():
     assert "*To Kill a Mockingbird*" in prompt
 
 
+def test_build_system_prompt_theme_three_is_tutor_group_participation():
+    prompt = build_system_prompt("tutor")
+    assert "participant in the Tutor Group" in prompt
+    assert "achievements, participation, leadership" not in prompt
+
+
 def test_build_system_prompt_tutor_includes_examples():
     prompt = build_system_prompt("tutor")
     assert "Example 1:" in prompt

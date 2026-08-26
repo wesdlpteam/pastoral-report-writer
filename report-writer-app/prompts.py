@@ -55,8 +55,10 @@ REPORT_RULES = {
         "- character, resilience, personal qualities (consider ROAR values: "
         "Respect, Opportunity, Achievement, Resilience); (2) the student as "
         "a learner - academic wellbeing, progress, and approach to learning; "
-        "(3) achievements, participation, leadership, or House/cocurricular "
-        "involvement this term; (4) a forward-focused closing about their "
+        "(3) the student as a participant in the Tutor Group - their "
+        "engagement with, and contribution to, Tutor Group discussions "
+        "and activities, and how they support their peers; (4) a "
+        "forward-focused closing about their "
         "goals or next steps for development. Use pronouns {pronouns} "
         "throughout. Write in third person, past tense where natural, and "
         'always refer to the student as "[student name]" - never invent '
@@ -68,7 +70,7 @@ ANSWER_LABELS = {
     "tutor": {
         "person": "The student as a person (character, ROAR values, peer interaction)",
         "learner": "The student as a learner (academic progress, approach to learning)",
-        "achievement": "Achievements, participation, or leadership this term",
+        "participant": "The student as a participant in the Tutor Group (engagement, contribution to discussions/activities, peer support)",
         "next_steps": "Student's goals or next focus area",
     },
 }
