@@ -50,48 +50,6 @@ const QUESTIONS = {
       },
     ],
   ],
-  pyp: [
-    [
-      {
-        id: "learner_social",
-        question: "Who are they as a learner and socially? Which Learner Profile attributes (Inquirer, Thinker, Communicator, etc.) show?",
-      },
-      {
-        id: "learner_social",
-        question: "How do they approach group work and collaboration?",
-      },
-    ],
-    [
-      {
-        id: "atl",
-        question: "What Approaches to Learning strength do they show? (thinking, research, communication, social, self-management) — give an example.",
-      },
-      {
-        id: "atl",
-        question: "When do they show the most curiosity or engagement?",
-      },
-    ],
-    [
-      {
-        id: "achievement",
-        question: "What achievement or participation stand out? (co-curricular, camp, project, leadership, group task)",
-      },
-      {
-        id: "achievement",
-        question: "What's one challenge they're working through, and how are they tackling it?",
-      },
-    ],
-    [
-      {
-        id: "next_steps",
-        question: "What's the next step for them as a learner? How can school and parents support this?",
-      },
-      {
-        id: "next_steps",
-        question: "What would help them grow in independence or confidence?",
-      },
-    ],
-  ],
 };
 
 const state = {

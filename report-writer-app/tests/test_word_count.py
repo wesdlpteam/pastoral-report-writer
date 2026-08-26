@@ -17,10 +17,6 @@ def test_get_range_tutor():
     assert get_range("tutor") == (100, 150)
 
 
-def test_get_range_pyp():
-    assert get_range("pyp") == (180, 300)
-
-
 def test_is_in_range_true():
     assert is_in_range(120, "tutor") is True
 

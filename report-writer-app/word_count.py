@@ -1,6 +1,5 @@
 REPORT_RANGES = {
     "tutor": (100, 150),
-    "pyp": (180, 300),
 }
 
 

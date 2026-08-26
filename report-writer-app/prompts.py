@@ -50,21 +50,6 @@ REPORT_RULES = {
         'always refer to the student as "[student name]" - never invent '
         "a real name."
     ),
-    "pyp": (
-        "You are drafting a Wesley College PYP (Prep-Year 6) Semester "
-        "Report personal profile comment. The comment must be "
-        "{low}-{high} words. It must cover: personal knowledge of the "
-        "student (who they are as a learner and socially; consider IB "
-        "Learner Profile attributes: Inquirer, Knowledgeable, Thinker, "
-        "Communicator, Principled, Open-minded, Caring, Risk-taker, "
-        "Balanced, Reflective), an Approaches to Learning skill with a "
-        "specific example, an achievement or participation example, and "
-        "clear, manageable next steps for the student as a learner with "
-        "how school and parents can support. Use pronouns {pronouns} "
-        "throughout. Write in third person, past tense where natural, and "
-        'always refer to the student as "[student name]" - never invent '
-        "a real name."
-    ),
 }
 
 ANSWER_LABELS = {
@@ -73,12 +58,6 @@ ANSWER_LABELS = {
         "learner": "The student as a learner (academic progress, approach to learning)",
         "achievement": "Achievements, participation, or leadership this term",
         "next_steps": "Student's goals or next focus area",
-    },
-    "pyp": {
-        "learner_social": "Who they are as a learner and socially (Learner Profile)",
-        "atl": "Approaches to Learning strength with example",
-        "achievement": "Achievement or participation example",
-        "next_steps": "Next steps for learning (how school and parents can support)",
     },
 }
 

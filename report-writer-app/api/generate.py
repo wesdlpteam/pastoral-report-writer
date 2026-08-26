@@ -45,8 +45,8 @@ def generate():
     house = data.get("house")
     adjust = data.get("adjust")
 
-    if report_type not in ["tutor", "pyp"]:
-        return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
+    if report_type != "tutor":
+        return jsonify({"error": "report_type must be 'tutor'"}), 400
 
     if not isinstance(answers, dict):
         return jsonify({"error": "answers must be an object"}), 400

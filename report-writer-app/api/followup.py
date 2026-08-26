@@ -35,7 +35,7 @@ def followup():
     pronouns = data.get("pronouns", "they/them")
 
     if report_type not in ANSWER_LABELS:
-        return jsonify({"error": "report_type must be 'tutor' or 'pyp'"}), 400
+        return jsonify({"error": "report_type must be 'tutor'"}), 400
     if question_id not in ANSWER_LABELS[report_type]:
         return jsonify({"error": "unknown question_id for this report_type"}), 400
     if not answer:

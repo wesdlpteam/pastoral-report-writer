@@ -183,28 +183,6 @@ def test_followup_redacts_possible_name_before_sending(mock_generate_followup, c
     assert "[student name]" in user_prompt
 
 
-@patch("app.generate_draft")
-def test_generate_success_pyp(mock_generate_draft, client):
-    mock_generate_draft.return_value = " ".join(["word"] * 200)
-
-    response = client.post(
-        "/api/generate",
-        json={
-            "report_type": "pyp",
-            "answers": {
-                "learner_social": "curious and keen to explore new ideas",
-                "atl": "shows strong thinking and communication skills daily",
-                "achievement": "took part in the school camp with enthusiasm",
-                "next_steps": "keep reading widely and building confidence",
-            },
-        },
-    )
-
-    assert response.status_code == 200
-    body = response.get_json()
-    assert body["target_range"] == [180, 300]
-
-
 def test_followup_missing_report_type(client):
     response = client.post("/api/followup", json={"question_id": "person", "answer": "kind"})
     assert response.status_code == 400
