@@ -17,6 +17,24 @@ def test_build_system_prompt_includes_myp_subject_names():
     assert "Individuals and Societies" in prompt
 
 
+def test_build_system_prompt_myp_note_shown_for_years_7_to_10():
+    for year in ("7", "8", "9", "10"):
+        prompt = build_system_prompt("tutor", year_level=year)
+        assert "Learner Profile" in prompt
+        assert "ATL" in prompt
+
+
+def test_build_system_prompt_myp_note_hidden_for_years_11_12():
+    for year in ("11", "12"):
+        prompt = build_system_prompt("tutor", year_level=year)
+        assert "Learner Profile" not in prompt
+
+
+def test_build_system_prompt_myp_note_hidden_when_no_year_level():
+    prompt = build_system_prompt("tutor")
+    assert "Learner Profile" not in prompt
+
+
 def test_build_system_prompt_includes_digital_tool_formatting():
     prompt = build_system_prompt("tutor")
     assert "PowerPoint" in prompt

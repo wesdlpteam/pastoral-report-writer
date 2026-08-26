@@ -41,6 +41,7 @@ def generate():
     report_type = data.get("report_type")
     answers = data.get("answers")
     pronouns = data.get("pronouns", "they/them")
+    year_level = data.get("year_level")
     tutor_group = data.get("tutor_group")
     house = data.get("house")
     adjust = data.get("adjust")
@@ -70,7 +71,7 @@ def generate():
 
     redacted_answers = {k: redact_possible_names(str(v)) for k, v in answers.items()}
 
-    system_prompt = build_system_prompt(report_type, pronouns)
+    system_prompt = build_system_prompt(report_type, pronouns, year_level)
     user_prompt = build_user_prompt(
         report_type, redacted_answers, pronouns, tutor_group, house, adjust
     )

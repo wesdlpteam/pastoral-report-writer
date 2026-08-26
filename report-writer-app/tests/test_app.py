@@ -66,6 +66,23 @@ def test_generate_success_tutor(mock_generate_draft, client):
 
 
 @patch("app.generate_draft")
+def test_generate_passes_year_level_to_myp_note(mock_generate_draft, client):
+    mock_generate_draft.return_value = " ".join(["word"] * 120)
+
+    client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "year_level": "8",
+            "answers": {"person": "shows resilience and works well with peers"},
+        },
+    )
+
+    system_prompt, _ = mock_generate_draft.call_args[0]
+    assert "Learner Profile" in system_prompt
+
+
+@patch("app.generate_draft")
 def test_generate_openai_failure_returns_502(mock_generate_draft, client):
     from openai_client import DraftGenerationError
 

@@ -55,6 +55,16 @@ HALLUCINATION_GUARD = (
     "instructed below."
 )
 
+MYP_LEARNER_PROFILE_NOTE = (
+    "MYP NOTE: This student is in Years 7-10 (MYP). When appropriate, "
+    "use the IB Learner Profile attributes (Inquirer, Knowledgeable, "
+    "Thinker, Communicator, Principled, Open-minded, Caring, "
+    "Risk-taker, Balanced, Reflective) and Approaches to Learning "
+    "(ATL) skill categories (Thinking, Communication, Social, "
+    "Self-management, Research) as ideas or language to help write "
+    "the student-as-a-learner sentence."
+)
+
 CONTEXT_REQUIREMENT = (
     "REQUIRED: You MUST explicitly mention the student's Tutor Group and/or House "
     "at least once in the report. Reference it naturally in relevant sections: "
@@ -91,10 +101,13 @@ ANSWER_LABELS = {
 }
 
 
-def build_system_prompt(report_type: str, pronouns: str = "they/them") -> str:
+def build_system_prompt(report_type: str, pronouns: str = "they/them", year_level: str = None) -> str:
     low, high = get_range(report_type)
     rules = REPORT_RULES[report_type].format(low=low, high=high, pronouns=pronouns)
     parts = [HALLUCINATION_GUARD, CONTEXT_REQUIREMENT, rules, STYLE_GUIDE_NOTES, TONE_GUARD]
+
+    if str(year_level) in {"7", "8", "9", "10"}:
+        parts.append(MYP_LEARNER_PROFILE_NOTE)
 
     if report_type == "tutor":
         examples_block = "\n\n".join(

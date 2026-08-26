@@ -189,7 +189,8 @@ body {
 }
 
 textarea,
-input[type="text"] {
+input[type="text"],
+select {
   width: 100%;
   padding: 0.75rem;
   font-family: var(--wes-font-ui);
@@ -202,7 +203,8 @@ input[type="text"] {
 }
 
 textarea:focus,
-input[type="text"]:focus {
+input[type="text"]:focus,
+select:focus {
   outline: none;
   border-color: var(--wes-purple);
 }
@@ -234,7 +236,8 @@ input[type="text"]:focus {
 .btn:focus-visible,
 .btn-link:focus-visible,
 textarea:focus-visible,
-input[type="text"]:focus-visible {
+input[type="text"]:focus-visible,
+select:focus-visible {
   outline: 3px solid var(--wes-gold);
   outline-offset: 2px;
 }
