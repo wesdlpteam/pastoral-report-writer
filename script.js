@@ -24,10 +24,12 @@ const QUESTIONS = {
       {
         id: "learner",
         question: "How are they progressing academically? What's their approach to learning and seeking feedback?",
+        mypQuestion: "How are they progressing academically? Which Learner Profile attribute (e.g. Inquirer, Thinker, Communicator) or ATL skill (e.g. Research, Self-management) stands out in their approach to learning?",
       },
       {
         id: "learner",
         question: "Where have they shown growth or resilience this term?",
+        mypQuestion: "Where have they shown growth or resilience this term? Does this connect to a Learner Profile attribute or ATL skill they're developing?",
       },
     ],
     [
@@ -304,10 +306,19 @@ function currentQuestions() {
   return QUESTIONS[state.reportType];
 }
 
+const MYP_YEAR_LEVELS = ["7", "8", "9", "10"];
+
+function getDisplayQuestion(q) {
+  if (MYP_YEAR_LEVELS.includes(state.yearLevel) && q.mypQuestion) {
+    return { ...q, question: q.mypQuestion };
+  }
+  return q;
+}
+
 function currentQuestion() {
   const questions = currentQuestions();
   const variantIdx = state.questionVariant[state.index] || 0;
-  return questions[state.index][variantIdx];
+  return getDisplayQuestion(questions[state.index][variantIdx]);
 }
 
 function renderQuestion() {
@@ -599,7 +610,7 @@ function renderNotesList(payloadAnswers) {
   notesList.innerHTML = "";
   questions.forEach((variantGroup, idx) => {
     const variantIdx = state.questionVariant[idx] || 0;
-    const q = variantGroup[variantIdx];
+    const q = getDisplayQuestion(variantGroup[variantIdx]);
     const value = payloadAnswers[q.id] || "";
 
     const dt = document.createElement("dt");
