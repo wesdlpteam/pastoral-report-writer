@@ -23,22 +23,46 @@
       <p class="welcome-intro">This tool helps you draft pastoral report comments faster, using your own words. It doesn't write reports on its own, you stay the author, it just handles the structuring and Wesley-style polish.</p>
       <p class="freetext-label" style="margin-top: 1.5rem;">How it works:</p>
       <ol class="welcome-steps">
+        <li>Enter the student's name.</li>
         <li>Answer a few short questions about the student, in your own words.</li>
-        <li>Review the AI-drafted comment and edit however you like.</li>
-        <li>Copy it into Word and add the student's name.</li>
+        <li>Review the AI-drafted comment and edit however you like, then copy it into Word.</li>
       </ol>
-      <p class="welcome-privacy">Student names are never entered into this tool. Nothing you type is saved or logged anywhere.</p>
+      <p class="welcome-privacy">The student's name and your notes are sent to our AI provider (OpenAI) to draft the comment; OpenAI is configured not to use this data to train its models. Your in-progress answers are kept in this browser only, until you finish or clear them.</p>
       <div class="nav-buttons">
         <button id="welcome-start-btn" class="btn btn-primary" style="margin-top: 1rem;">Get started</button>
       </div>
     </section>
 
-    <section id="screen-pronouns" class="screen hidden">
+    <section id="screen-name" class="screen hidden">
       <p id="resume-banner" class="resume-banner hidden">
         You have an unfinished report saved.
         <button id="resume-btn" class="btn-link">Resume it</button>
         <button id="discard-resume-btn" class="btn-link">Start fresh instead</button>
       </p>
+      <h2>Student's name</h2>
+      <div>
+        <label class="freetext-label" for="formal-name-input">Formal name (as in Synergetic):</label>
+        <input type="text" id="formal-name-input" style="margin-top: 0.5rem;">
+
+        <label class="freetext-label" for="preferred-name-input" style="margin-top: 1rem;">Preferred name (if different, optional):</label>
+        <input type="text" id="preferred-name-input" style="margin-top: 0.5rem;">
+      </div>
+      <p id="name-error" class="error-banner hidden"></p>
+      <details id="naming-guide" class="notes-details" style="margin-top: 1rem;">
+        <summary>Naming guide: which name to use</summary>
+        <p>If you intend to use a preferred name in the report, it must be written in brackets in the first instance and may then be used throughout the remainder of the report.</p>
+        <p><strong>Example:</strong> Thomas, Orson (Sonny).<br>
+        "Orson (Sonny) has completed a sound term's work. Sonny is a friendly and polite individual."</p>
+        <p>The formal name Orson may be used throughout, although this may indicate a lack of familiarity with the actual student. Do not swap back and forth between using the formal name and the preferred name.</p>
+        <p>If no preferred name is mentioned in brackets in Synergetic, the formal name MUST be used, even if you use an abbreviated version when you speak to this student.</p>
+        <p>Enter the formal name and, if applicable, the preferred name above &mdash; the draft will use them correctly for you.</p>
+      </details>
+      <div class="nav-buttons">
+        <button id="name-next-btn" class="btn btn-primary" style="margin-top: 1.5rem;">Next</button>
+      </div>
+    </section>
+
+    <section id="screen-pronouns" class="screen hidden">
       <h2>Student's pronouns</h2>
       <div class="pronouns-options">
         <button class="pronoun-btn" data-pronoun="they/them">They/Them (gender-neutral)</button>
@@ -71,11 +95,11 @@
           <option value="12">Year 12</option>
         </select>
 
-        <label class="freetext-label" for="tutor-group-input" style="margin-top: 1rem;">Tutor Group (e.g., 7A, 11D):</label>
-        <input type="text" id="tutor-group-input" placeholder="e.g., 7A" style="margin-top: 0.5rem;">
+        <label class="freetext-label" for="tutor-group-input" style="margin-top: 1rem;">Tutor Group:</label>
+        <input type="text" id="tutor-group-input" style="margin-top: 0.5rem;">
 
-        <label class="freetext-label" for="house-input" style="margin-top: 1rem;">House (e.g., Adamson, Corrigan, Irving, Way):</label>
-        <input type="text" id="house-input" placeholder="e.g., Adamson" style="margin-top: 0.5rem;">
+        <label class="freetext-label" for="house-input" style="margin-top: 1rem;">House:</label>
+        <input type="text" id="house-input" style="margin-top: 0.5rem;">
       </div>
       <div class="nav-buttons">
         <button id="context-next-btn" class="btn btn-primary" style="margin-top: 1.5rem;">Next</button>
@@ -111,7 +135,7 @@
 
     <section id="screen-result" class="screen hidden">
       <h2>Draft based on your notes</h2>
-      <p class="sample-note">Edit as needed. Copy and paste into Word, then add student name.</p>
+      <p class="sample-note">Edit as needed, then copy and paste into Word.</p>
       <p id="error-banner" class="error-banner hidden"></p>
       <p id="loading-text" class="loading-text hidden">Writing your draft...</p>
       <p id="tone-note" class="tone-note hidden"></p>
@@ -126,15 +150,7 @@
         <button id="shorten-btn" class="btn btn-secondary hidden">Make it shorter</button>
         <button id="lengthen-btn" class="btn btn-secondary hidden">Make it longer</button>
       </div>
-      <p id="checklist-note" class="checklist-note hidden">Before you copy: add the correct version of the student's name (see naming guide below), double-check the pronouns are right, and italicise any text wrapped in *asterisks*.</p>
-      <details id="naming-guide" class="notes-details hidden">
-        <summary>Naming guide: which name to use</summary>
-        <p>If you intend to use a preferred name in the report, it must be written in brackets in the first instance and may then be used throughout the remainder of the report.</p>
-        <p><strong>Example:</strong> Thomas, Orson (Sonny).<br>
-        "Orson (Sonny) has completed a sound term's work. Sonny is a friendly and polite individual."</p>
-        <p>The formal name Orson may be used throughout, although this may indicate a lack of familiarity with the actual student. Do not swap back and forth between using the formal name and the preferred name.</p>
-        <p>If no preferred name is mentioned in brackets in Synergetic, the formal name MUST be used, even if you use an abbreviated version when you speak to this student.</p>
-      </details>
+      <p id="checklist-note" class="checklist-note hidden">Before you copy: double-check the student's name and pronouns are right, and italicise any text wrapped in *asterisks*.</p>
       <div class="result-buttons">
         <button id="copy-btn" class="btn btn-primary hidden">Copy to clipboard</button>
         <button id="regenerate-btn" class="btn btn-secondary hidden">Regenerate</button>
@@ -145,7 +161,7 @@
    </div>
   </main>
 
-  <p class="app-version">v2026.08.19-10</p>
+  <p class="app-version">v2026.08.31-1</p>
 
   <script src="script.js"></script>
 </body>
