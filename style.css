@@ -60,14 +60,15 @@ body {
 }
 
 .progress-track {
-  height: 6px;
+  height: 8px;
   background: var(--wes-neutral-200);
 }
 
 .progress-fill {
   height: 100%;
   width: 100%;
-  background: var(--wes-purple);
+  background: var(--wes-gold);
+  box-shadow: 0 0 8px rgba(197, 159, 64, 0.6);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
