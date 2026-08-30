@@ -86,9 +86,11 @@ def test_build_system_prompt_tutor_includes_examples():
     assert "Example 1:" in prompt
 
 
-def test_build_system_prompt_always_uses_placeholder_instruction():
+def test_build_system_prompt_includes_name_formatting_guide():
     prompt = build_system_prompt("tutor")
-    assert "[student name]" in prompt
+    assert "NAME FORMATTING" in prompt
+    assert "Orson (Sonny)" in prompt
+    assert "Do not swap back and forth" in prompt
 
 
 def test_build_user_prompt_includes_answers():
@@ -108,6 +110,20 @@ def test_build_user_prompt_skips_empty_answers():
     prompt = build_user_prompt("tutor", answers)
     assert "The student as a person" not in prompt
     assert "improving" in prompt
+
+
+def test_build_user_prompt_includes_formal_and_preferred_name():
+    prompt = build_user_prompt(
+        "tutor", {"person": "kind"}, formal_name="Jane Test", preferred_name="Janie"
+    )
+    assert "Formal name: Jane Test" in prompt
+    assert "Preferred name: Janie" in prompt
+
+
+def test_build_user_prompt_shows_no_preferred_name_when_none_given():
+    prompt = build_user_prompt("tutor", {"person": "kind"}, formal_name="Jane Test")
+    assert "Formal name: Jane Test" in prompt
+    assert "Preferred name: (none given)" in prompt
 
 
 def test_system_prompt_forbids_inventing_content_even_for_word_count():

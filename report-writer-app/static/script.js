@@ -55,6 +55,8 @@ const QUESTIONS = {
 
 const state = {
   reportType: null,
+  formalName: null,
+  preferredName: null,
   pronoun: null,
   yearLevel: null,
   tutorGroup: null,
@@ -69,6 +71,12 @@ const state = {
 
 const screenWelcome = document.getElementById("screen-welcome");
 const welcomeStartBtn = document.getElementById("welcome-start-btn");
+
+const screenName = document.getElementById("screen-name");
+const formalNameInput = document.getElementById("formal-name-input");
+const preferredNameInput = document.getElementById("preferred-name-input");
+const nameNextBtn = document.getElementById("name-next-btn");
+const nameError = document.getElementById("name-error");
 
 const screenPronoun = document.getElementById("screen-pronouns");
 const screenContext = document.getElementById("screen-context");
@@ -113,7 +121,6 @@ const wordCountText = document.getElementById("word-count-text");
 const shortenBtn = document.getElementById("shorten-btn");
 const lengthenBtn = document.getElementById("lengthen-btn");
 const checklistNote = document.getElementById("checklist-note");
-const namingGuide = document.getElementById("naming-guide");
 const copyBtn = document.getElementById("copy-btn");
 const regenerateBtn = document.getElementById("regenerate-btn");
 const usePreviousBtn = document.getElementById("use-previous-btn");
@@ -123,7 +130,7 @@ const customPronounInput = document.getElementById("custom-pronoun");
 const progressTrack = document.getElementById("progress-track");
 const progressFill = document.getElementById("progress-fill");
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 const MIN_WORDS = 5;
 const THIN_ANSWER_WORDS = 15;
 
@@ -179,6 +186,8 @@ function saveAutosave() {
     LS_AUTOSAVE,
     JSON.stringify({
       reportType: state.reportType,
+      formalName: state.formalName,
+      preferredName: state.preferredName,
       pronoun: state.pronoun,
       yearLevel: state.yearLevel,
       tutorGroup: state.tutorGroup,
@@ -217,6 +226,33 @@ function prefillContext() {
   }
 }
 
+nameNextBtn.addEventListener("click", () => {
+  const formalName = formalNameInput.value.trim();
+  const preferredName = preferredNameInput.value.trim();
+
+  if (!formalName) {
+    nameError.textContent = "Please enter the student's formal name.";
+    nameError.classList.remove("hidden");
+    return;
+  }
+  if (findBadWords(formalName).length || findGibberishWords(formalName).length) {
+    nameError.textContent = "Please check the formal name doesn't include swearing or nonsense text.";
+    nameError.classList.remove("hidden");
+    return;
+  }
+  if (preferredName && (findBadWords(preferredName).length || findGibberishWords(preferredName).length)) {
+    nameError.textContent = "Please check the preferred name doesn't include swearing or nonsense text.";
+    nameError.classList.remove("hidden");
+    return;
+  }
+
+  nameError.classList.add("hidden");
+  state.formalName = formalName;
+  state.preferredName = preferredName || null;
+  showScreen(screenPronoun);
+  setProgress(2);
+});
+
 document.querySelectorAll(".pronoun-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".pronoun-btn").forEach((b) => b.classList.remove("selected"));
@@ -238,7 +274,7 @@ pronounNextBtn.addEventListener("click", () => {
   }
   prefillContext();
   showScreen(screenContext);
-  setProgress(2);
+  setProgress(3);
 });
 
 contextNextBtn.addEventListener("click", () => {
@@ -260,7 +296,7 @@ contextNextBtn.addEventListener("click", () => {
 });
 
 function showScreen(screen) {
-  [screenWelcome, screenPronoun, screenContext, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
+  [screenWelcome, screenName, screenPronoun, screenContext, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
   screen.classList.remove("hidden");
 }
 
@@ -289,7 +325,7 @@ function renderQuestion() {
   nextBtn.classList.toggle("hidden", isLast);
   generateBtn.classList.toggle("hidden", !isLast);
 
-  setProgress(3 + state.index);
+  setProgress(4 + state.index);
 }
 
 anotherBtn.addEventListener("click", () => {
@@ -494,6 +530,8 @@ resumeBtn.addEventListener("click", () => {
   resumeBanner.classList.add("hidden");
   if (!saved) return;
   state.reportType = saved.reportType;
+  state.formalName = saved.formalName || null;
+  state.preferredName = saved.preferredName || null;
   state.pronoun = saved.pronoun;
   state.yearLevel = saved.yearLevel || null;
   state.tutorGroup = saved.tutorGroup;
@@ -513,6 +551,8 @@ discardResumeBtn.addEventListener("click", () => {
 
 startOverBtn.addEventListener("click", () => {
   state.reportType = "tutor";
+  state.formalName = null;
+  state.preferredName = null;
   state.pronoun = null;
   state.yearLevel = null;
   state.tutorGroup = null;
@@ -529,11 +569,12 @@ startOverBtn.addEventListener("click", () => {
   shortenBtn.classList.add("hidden");
   lengthenBtn.classList.add("hidden");
   checklistNote.classList.add("hidden");
-  namingGuide.classList.add("hidden");
   notesDetails.classList.add("hidden");
   resumeBanner.classList.add("hidden");
+  formalNameInput.value = "";
+  preferredNameInput.value = "";
   clearAutosave();
-  showScreen(screenPronoun);
+  showScreen(screenName);
   setProgress(1);
 });
 
@@ -632,6 +673,8 @@ async function generateDraft(adjust) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         report_type: state.reportType,
+        formal_name: state.formalName,
+        preferred_name: state.preferredName,
         pronouns: state.pronoun,
         year_level: state.yearLevel,
         tutor_group: state.tutorGroup,
@@ -663,7 +706,6 @@ async function generateDraft(adjust) {
     copyBtn.classList.remove("hidden");
     regenerateBtn.classList.remove("hidden");
     checklistNote.classList.remove("hidden");
-    namingGuide.classList.remove("hidden");
     renderNotesList(payloadAnswers);
     clearAutosave();
 
@@ -689,14 +731,14 @@ function checkResumeBanner() {
 welcomeStartBtn.addEventListener("click", () => {
   localStorage.setItem(LS_WELCOME_SEEN, "1");
   state.reportType = "tutor";
-  showScreen(screenPronoun);
+  showScreen(screenName);
   setProgress(1);
   checkResumeBanner();
 });
 
 if (localStorage.getItem(LS_WELCOME_SEEN)) {
   state.reportType = "tutor";
-  showScreen(screenPronoun);
+  showScreen(screenName);
   setProgress(1);
   checkResumeBanner();
 }

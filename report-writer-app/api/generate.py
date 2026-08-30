@@ -5,12 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, jsonify, request
 
-from content_filter import (
-    find_bad_words,
-    find_gibberish_words,
-    has_low_word_diversity,
-    redact_possible_names,
-)
+from content_filter import find_bad_words, find_gibberish_words, has_low_word_diversity
 from openai_client import DraftGenerationError, generate_draft
 from prompts import build_system_prompt, build_user_prompt
 from tone_guide import find_tempered_words
@@ -39,6 +34,8 @@ def generate():
     data = request.get_json(silent=True) or {}
 
     report_type = data.get("report_type")
+    formal_name = str(data.get("formal_name", "")).strip()
+    preferred_name = str(data.get("preferred_name", "")).strip() or None
     answers = data.get("answers")
     pronouns = data.get("pronouns", "they/them")
     year_level = data.get("year_level")
@@ -48,6 +45,12 @@ def generate():
 
     if report_type != "tutor":
         return jsonify({"error": "report_type must be 'tutor'"}), 400
+    if not formal_name:
+        return jsonify({"error": "the student's formal name is required"}), 400
+    if find_bad_words(formal_name) or find_gibberish_words(formal_name):
+        return jsonify({"error": "please check the student's formal name"}), 400
+    if preferred_name and (find_bad_words(preferred_name) or find_gibberish_words(preferred_name)):
+        return jsonify({"error": "please check the student's preferred name"}), 400
 
     if not isinstance(answers, dict):
         return jsonify({"error": "answers must be an object"}), 400
@@ -69,11 +72,10 @@ def generate():
         if has_low_word_diversity(text):
             return jsonify({"error": "one of your answers looks like repeated filler text, please write a genuine response"}), 400
 
-    redacted_answers = {k: redact_possible_names(str(v)) for k, v in answers.items()}
-
     system_prompt = build_system_prompt(report_type, pronouns, year_level)
     user_prompt = build_user_prompt(
-        report_type, redacted_answers, pronouns, tutor_group, house, adjust
+        report_type, answers, pronouns, tutor_group, house, adjust,
+        formal_name=formal_name, preferred_name=preferred_name,
     )
 
     try:

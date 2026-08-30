@@ -5,7 +5,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, jsonify, request
 
-from content_filter import redact_possible_names
 from openai_client import FollowupGenerationError, generate_followup
 from prompts import ANSWER_LABELS, FOLLOWUP_SYSTEM_PROMPT, build_followup_user_prompt
 
@@ -42,9 +41,7 @@ def followup():
         return jsonify({"error": "answer is required"}), 400
 
     question_label = ANSWER_LABELS[report_type][question_id]
-    user_prompt = build_followup_user_prompt(
-        question_label, redact_possible_names(answer), pronouns
-    )
+    user_prompt = build_followup_user_prompt(question_label, answer, pronouns)
 
     try:
         result = generate_followup(FOLLOWUP_SYSTEM_PROMPT, user_prompt)

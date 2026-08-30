@@ -1,9 +1,4 @@
-from content_filter import (
-    find_bad_words,
-    find_gibberish_words,
-    has_low_word_diversity,
-    redact_possible_names,
-)
+from content_filter import find_bad_words, find_gibberish_words, has_low_word_diversity
 
 
 def test_finds_bad_word_in_sentence():
@@ -56,30 +51,3 @@ def test_does_not_flag_short_answers():
 
 def test_does_not_flag_natural_repetition():
     assert has_low_word_diversity("he is a lovely, lovely student") is False
-
-
-def test_redacts_name_at_start_of_sentence():
-    assert (
-        redact_possible_names("Jordan is a resilient and kind student.")
-        == "[student name] is a resilient and kind student."
-    )
-
-
-def test_redacts_name_mid_sentence():
-    assert (
-        redact_possible_names("The student is resilient, and Alex handled it well.")
-        == "The student is resilient, and [student name] handled it well."
-    )
-
-
-def test_redact_does_not_touch_genuine_sentence():
-    text = (
-        "The student handled it well, and their friend was there. "
-        "When things got hard, they kept trying. He showed real resilience."
-    )
-    assert redact_possible_names(text) == text
-
-
-def test_redact_does_not_touch_wesley_specific_terms():
-    text = "In Term 2, they joined House Adamson and enjoyed Maths class."
-    assert redact_possible_names(text) == text

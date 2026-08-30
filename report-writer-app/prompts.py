@@ -99,11 +99,22 @@ HALLUCINATION_GUARD = (
     "content. Do not copy phrases from the examples provided. Instead, "
     "reshape the teacher's own language into Wesley's voice. If a "
     "teacher answer is empty or missing, simply omit that topic from "
-    "the report rather than inventing details. NAMES: if the notes "
-    "below happen to contain the student's real name anywhere (they "
-    "should not, but check), NEVER print that real name in your "
-    "output - always write \"[student name]\" instead, exactly as "
-    "instructed below."
+    "the report rather than inventing details. NAMES: use only the "
+    "student name(s) given in the context block below, formatted "
+    "exactly as instructed in the name formatting rule - never invent "
+    "a different name or a nickname you were not given."
+)
+
+NAME_FORMATTING_GUIDE = (
+    "NAME FORMATTING: the context block below gives you the student's "
+    "formal name, and possibly a preferred name. If a preferred name "
+    "is given, refer to the student by their formal name followed by "
+    "the preferred name in brackets the FIRST time they are mentioned, "
+    "e.g. \"Orson (Sonny) has completed a sound term's work.\" - then "
+    "use ONLY the preferred name for every mention after that, e.g. "
+    '"Sonny is a friendly and polite individual." Do not swap back '
+    "and forth between the formal and preferred name. If no preferred "
+    "name is given, use the formal name throughout, exactly as given."
 )
 
 MYP_LEARNER_PROFILE_NOTE = (
@@ -140,8 +151,8 @@ REPORT_RULES = {
         "how they have engaged with peers, Education Outdoors, or "
         "leadership positions this term. Use pronouns {pronouns} "
         "throughout. Write in third person, past tense where natural, and "
-        'always refer to the student as "[student name]" - never invent '
-        "a real name."
+        "always refer to the student by name, following the name "
+        "formatting rule below - never invent a name."
     ),
 }
 
@@ -160,6 +171,7 @@ def build_system_prompt(report_type: str, pronouns: str = "they/them", year_leve
     rules = REPORT_RULES[report_type].format(low=low, high=high, pronouns=pronouns)
     parts = [
         HALLUCINATION_GUARD,
+        NAME_FORMATTING_GUIDE,
         CONTEXT_REQUIREMENT,
         rules,
         STYLE_GUIDE_NOTES,
@@ -191,9 +203,16 @@ def build_user_prompt(
     tutor_group: str = None,
     house: str = None,
     adjust: str = None,
+    formal_name: str = None,
+    preferred_name: str = None,
 ) -> str:
     labels = ANSWER_LABELS[report_type]
     lines = [f"Teacher's notes about the student (using pronouns {pronouns}):"]
+    lines.append("")
+    lines.append("*** STUDENT NAME (use exactly as instructed above) ***")
+    lines.append(f"Formal name: {formal_name or '(not provided)'}")
+    lines.append(f"Preferred name: {preferred_name or '(none given)'}")
+    lines.append("*** END STUDENT NAME ***")
     lines.append("")
     lines.append("*** CONTEXT (MUST REFERENCE IN REPORT) ***")
     if tutor_group and tutor_group != "(not specified)":

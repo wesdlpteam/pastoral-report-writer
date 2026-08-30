@@ -28,11 +28,34 @@ def test_generate_invalid_report_type(client):
     assert response.status_code == 400
 
 
+def test_generate_missing_formal_name(client):
+    response = client.post(
+        "/api/generate",
+        json={"report_type": "tutor", "answers": {"person": "shows resilience and works well with peers"}},
+    )
+    assert response.status_code == 400
+    assert "formal name is required" in response.get_json()["error"]
+
+
+def test_generate_formal_name_with_bad_word(client):
+    response = client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "formal_name": "shit Test",
+            "answers": {"person": "shows resilience and works well with peers"},
+        },
+    )
+    assert response.status_code == 400
+    assert "formal name" in response.get_json()["error"]
+
+
 def test_generate_missing_required_answers(client):
     response = client.post(
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "answers": {"person": "", "learner": "", "participant": ""},
         },
     )
@@ -49,6 +72,7 @@ def test_generate_success_tutor(mock_generate_draft, client):
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "answers": {
                 "person": "shows resilience and works well with peers",
                 "learner": "steadily improving across all subjects this term",
@@ -66,6 +90,25 @@ def test_generate_success_tutor(mock_generate_draft, client):
 
 
 @patch("app.generate_draft")
+def test_generate_uses_real_name_in_prompt(mock_generate_draft, client):
+    mock_generate_draft.return_value = " ".join(["word"] * 120)
+
+    client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "formal_name": "Jane Test",
+            "preferred_name": "Janie",
+            "answers": {"person": "shows resilience and works well with peers"},
+        },
+    )
+
+    _, user_prompt = mock_generate_draft.call_args[0]
+    assert "Formal name: Jane Test" in user_prompt
+    assert "Preferred name: Janie" in user_prompt
+
+
+@patch("app.generate_draft")
 def test_generate_passes_year_level_to_myp_note(mock_generate_draft, client):
     mock_generate_draft.return_value = " ".join(["word"] * 120)
 
@@ -73,6 +116,7 @@ def test_generate_passes_year_level_to_myp_note(mock_generate_draft, client):
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "year_level": "8",
             "answers": {"person": "shows resilience and works well with peers"},
         },
@@ -92,6 +136,7 @@ def test_generate_openai_failure_returns_502(mock_generate_draft, client):
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "answers": {
                 "person": "shows resilience and works well with peers",
                 "learner": "steadily improving across all subjects this term",
@@ -108,6 +153,7 @@ def test_generate_answer_too_short(client):
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "answers": {"person": "too short", "learner": "", "participant": ""},
         },
     )
@@ -120,6 +166,7 @@ def test_generate_answer_with_gibberish(client):
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "answers": {
                 "person": "asdfgh asdfgh asdfgh asdfgh asdfgh",
                 "learner": "",
@@ -136,6 +183,7 @@ def test_generate_answer_with_repeated_word_spam(client):
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "answers": {"person": "poo poo poo poo poo", "learner": "", "participant": ""},
         },
     )
@@ -148,6 +196,7 @@ def test_generate_answer_with_bad_word(client):
         "/api/generate",
         json={
             "report_type": "tutor",
+            "formal_name": "Jane Test",
             "answers": {
                 "person": "this student is a total shit in class",
                 "learner": "",
@@ -157,47 +206,6 @@ def test_generate_answer_with_bad_word(client):
     )
     assert response.status_code == 400
     assert "inappropriate language" in response.get_json()["error"]
-
-
-@patch("app.generate_draft")
-def test_generate_redacts_possible_name_before_sending(mock_generate_draft, client):
-    mock_generate_draft.return_value = " ".join(["word"] * 120)
-
-    response = client.post(
-        "/api/generate",
-        json={
-            "report_type": "tutor",
-            "answers": {
-                "person": "Jordan is kind and resilient with peers",
-                "learner": "",
-                "participant": "",
-            },
-        },
-    )
-
-    assert response.status_code == 200
-    _, user_prompt = mock_generate_draft.call_args[0]
-    assert "Jordan" not in user_prompt
-    assert "[student name]" in user_prompt
-
-
-@patch("app.generate_followup")
-def test_followup_redacts_possible_name_before_sending(mock_generate_followup, client):
-    mock_generate_followup.return_value = {"question": "q", "suggestions": []}
-
-    response = client.post(
-        "/api/followup",
-        json={
-            "report_type": "tutor",
-            "question_id": "person",
-            "answer": "Jordan is kind and resilient",
-        },
-    )
-
-    assert response.status_code == 200
-    _, user_prompt = mock_generate_followup.call_args[0]
-    assert "Jordan" not in user_prompt
-    assert "[student name]" in user_prompt
 
 
 def test_followup_missing_report_type(client):
