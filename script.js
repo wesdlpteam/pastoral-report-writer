@@ -1,4 +1,4 @@
-const API_URL = window.location.hostname === "localhost"
+const API_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
   ? "http://localhost:5000"
   : "https://pastoral-report-writer.vercel.app";
 
@@ -272,7 +272,7 @@ document.querySelectorAll(".pronoun-btn").forEach((btn) => {
 
 pronounNextBtn.addEventListener("click", () => {
   if (state.pronoun === "other") {
-    state.pronoun = customPronounInput.value || "they/them";
+    state.pronoun = customPronounInput.value.trim().slice(0, 30) || "they/them";
   }
   prefillContext();
   showScreen(screenContext);
@@ -303,7 +303,7 @@ function showScreen(screen) {
 }
 
 function currentQuestions() {
-  return QUESTIONS[state.reportType];
+  return QUESTIONS[state.reportType] || QUESTIONS.tutor;
 }
 
 const MYP_YEAR_LEVELS = ["7", "8", "9", "10"];
@@ -317,8 +317,16 @@ function getDisplayQuestion(q) {
 
 function currentQuestion() {
   const questions = currentQuestions();
-  const variantIdx = state.questionVariant[state.index] || 0;
-  return getDisplayQuestion(questions[state.index][variantIdx]);
+  if (!Number.isInteger(state.index) || state.index < 0 || state.index >= questions.length) {
+    state.index = 0;
+  }
+  const variants = questions[state.index];
+  const rawVariantIdx = state.questionVariant[state.index];
+  const variantIdx =
+    Number.isInteger(rawVariantIdx) && rawVariantIdx >= 0 && rawVariantIdx < variants.length
+      ? rawVariantIdx
+      : 0;
+  return getDisplayQuestion(variants[variantIdx]);
 }
 
 function renderQuestion() {
@@ -540,16 +548,17 @@ resumeBtn.addEventListener("click", () => {
   const saved = loadAutosave();
   resumeBanner.classList.add("hidden");
   if (!saved) return;
-  state.reportType = saved.reportType;
+  state.reportType = "tutor";
   state.formalName = saved.formalName || null;
   state.preferredName = saved.preferredName || null;
-  state.pronoun = saved.pronoun;
+  state.pronoun = saved.pronoun || null;
   state.yearLevel = saved.yearLevel || null;
-  state.tutorGroup = saved.tutorGroup;
-  state.house = saved.house;
-  state.index = saved.index;
-  state.answers = saved.answers;
-  state.questionVariant = saved.questionVariant;
+  state.tutorGroup = saved.tutorGroup || null;
+  state.house = saved.house || null;
+  state.index = Number.isInteger(saved.index) ? saved.index : 0;
+  state.answers = saved.answers && typeof saved.answers === "object" ? saved.answers : {};
+  state.questionVariant =
+    saved.questionVariant && typeof saved.questionVariant === "object" ? saved.questionVariant : {};
   state.followupAsked = {};
   showScreen(screenQuestion);
   renderQuestion();
