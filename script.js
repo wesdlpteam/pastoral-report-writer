@@ -72,7 +72,26 @@ const state = {
 };
 
 const screenWelcome = document.getElementById("screen-welcome");
-const welcomeStartBtn = document.getElementById("welcome-start-btn");
+const startGuidedBtn = document.getElementById("start-guided-btn");
+const startCheckBtn = document.getElementById("start-check-btn");
+
+const screenCheckInput = document.getElementById("screen-check-input");
+const checkTextInput = document.getElementById("check-text-input");
+const checkInputError = document.getElementById("check-input-error");
+const checkBackBtn = document.getElementById("check-back-btn");
+const checkSubmitBtn = document.getElementById("check-submit-btn");
+
+const screenCheckResult = document.getElementById("screen-check-result");
+const checkErrorBanner = document.getElementById("check-error-banner");
+const checkLoadingText = document.getElementById("check-loading-text");
+const checkResultContent = document.getElementById("check-result-content");
+const checkOriginalTextEl = document.getElementById("check-original-text");
+const checkCorrectedTextEl = document.getElementById("check-corrected-text");
+const checkChangesWrapper = document.getElementById("check-changes-wrapper");
+const checkChangesList = document.getElementById("check-changes-list");
+const checkNoChangesNote = document.getElementById("check-no-changes-note");
+const checkCopyBtn = document.getElementById("check-copy-btn");
+const checkAnotherBtn = document.getElementById("check-another-btn");
 
 const screenName = document.getElementById("screen-name");
 const formalNameInput = document.getElementById("formal-name-input");
@@ -298,7 +317,16 @@ contextNextBtn.addEventListener("click", () => {
 });
 
 function showScreen(screen) {
-  [screenWelcome, screenName, screenPronoun, screenContext, screenQuestion, screenResult].forEach((s) => s.classList.add("hidden"));
+  [
+    screenWelcome,
+    screenCheckInput,
+    screenCheckResult,
+    screenName,
+    screenPronoun,
+    screenContext,
+    screenQuestion,
+    screenResult,
+  ].forEach((s) => s.classList.add("hidden"));
   screen.classList.remove("hidden");
 }
 
@@ -748,7 +776,7 @@ function checkResumeBanner() {
   }
 }
 
-welcomeStartBtn.addEventListener("click", () => {
+startGuidedBtn.addEventListener("click", () => {
   localStorage.setItem(LS_WELCOME_SEEN, "1");
   state.reportType = "tutor";
   showScreen(screenName);
@@ -756,9 +784,126 @@ welcomeStartBtn.addEventListener("click", () => {
   checkResumeBanner();
 });
 
-if (localStorage.getItem(LS_WELCOME_SEEN)) {
-  state.reportType = "tutor";
-  showScreen(screenName);
-  setProgress(1);
-  checkResumeBanner();
+startCheckBtn.addEventListener("click", () => {
+  localStorage.setItem(LS_WELCOME_SEEN, "1");
+  showScreen(screenCheckInput);
+  setProgress(0);
+});
+
+checkBackBtn.addEventListener("click", () => {
+  showScreen(screenWelcome);
+  setProgress(0);
+});
+
+checkSubmitBtn.addEventListener("click", () => {
+  const text = checkTextInput.value.trim();
+  const wordCount = countWords(text);
+
+  if (!text) {
+    checkInputError.textContent = "Please paste the report text to check.";
+    checkInputError.classList.remove("hidden");
+    return;
+  }
+  if (wordCount < 15) {
+    checkInputError.textContent = "Please paste at least 15 words.";
+    checkInputError.classList.remove("hidden");
+    return;
+  }
+  if (wordCount > 400) {
+    checkInputError.textContent = "Please paste no more than 400 words at a time.";
+    checkInputError.classList.remove("hidden");
+    return;
+  }
+  if (findBadWords(text).length) {
+    checkInputError.textContent = "Please remove inappropriate language before checking.";
+    checkInputError.classList.remove("hidden");
+    return;
+  }
+
+  checkInputError.classList.add("hidden");
+  runStyleCheck(text);
+});
+
+async function runStyleCheck(text) {
+  showScreen(screenCheckResult);
+  checkErrorBanner.classList.add("hidden");
+  checkResultContent.classList.add("hidden");
+  checkCopyBtn.classList.add("hidden");
+  checkAnotherBtn.classList.add("hidden");
+  checkLoadingText.classList.remove("hidden");
+
+  try {
+    const response = await fetch(`${API_URL}/api/style_check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    const body = await response.json();
+
+    if (!response.ok) {
+      throw new Error(body.error || "Something went wrong checking the report.");
+    }
+
+    renderCheckResult(body);
+  } catch (err) {
+    checkErrorBanner.textContent = err.message;
+    checkErrorBanner.classList.remove("hidden");
+  } finally {
+    checkLoadingText.classList.add("hidden");
+  }
 }
+
+function renderCheckResult(result) {
+  checkOriginalTextEl.textContent = result.original_text || "";
+  checkCorrectedTextEl.value = result.corrected_text || "";
+
+  const changes = result.changes || [];
+  checkChangesList.innerHTML = "";
+
+  if (changes.length === 0) {
+    checkChangesWrapper.classList.add("hidden");
+    checkNoChangesNote.classList.remove("hidden");
+  } else {
+    checkChangesWrapper.classList.remove("hidden");
+    checkNoChangesNote.classList.add("hidden");
+    changes.forEach((change) => {
+      const li = document.createElement("li");
+
+      const originalSpan = document.createElement("span");
+      originalSpan.className = "change-original";
+      originalSpan.textContent = change.original || "";
+
+      const correctedSpan = document.createElement("span");
+      correctedSpan.className = "change-corrected";
+      correctedSpan.textContent = ` → ${change.corrected || ""}`;
+
+      const reasonSpan = document.createElement("span");
+      reasonSpan.className = "change-reason";
+      reasonSpan.textContent = change.reason || "";
+
+      li.appendChild(originalSpan);
+      li.appendChild(correctedSpan);
+      li.appendChild(reasonSpan);
+      checkChangesList.appendChild(li);
+    });
+  }
+
+  checkResultContent.classList.remove("hidden");
+  checkCopyBtn.classList.remove("hidden");
+  checkAnotherBtn.classList.remove("hidden");
+}
+
+checkCopyBtn.addEventListener("click", () => {
+  checkCorrectedTextEl.select();
+  navigator.clipboard.writeText(checkCorrectedTextEl.value);
+  checkCopyBtn.textContent = "Copied!";
+  setTimeout(() => {
+    checkCopyBtn.textContent = "Copy corrected text";
+  }, 2000);
+});
+
+checkAnotherBtn.addEventListener("click", () => {
+  checkTextInput.value = "";
+  checkInputError.classList.add("hidden");
+  showScreen(screenCheckInput);
+});

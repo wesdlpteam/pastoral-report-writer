@@ -29,7 +29,47 @@
       </ol>
       <p class="welcome-privacy">The student's name and your notes are sent to our AI provider (OpenAI) to draft the comment; OpenAI is configured not to use this data to train its models. Your in-progress answers are kept in this browser only, until you finish or clear them.</p>
       <div class="nav-buttons">
-        <button id="welcome-start-btn" class="btn btn-primary" style="margin-top: 1rem;">Get started</button>
+        <button id="start-guided-btn" class="btn btn-primary" style="margin-top: 1rem;">Write a new report</button>
+        <button id="start-check-btn" class="btn btn-secondary" style="margin-top: 1rem;">Check an existing report</button>
+      </div>
+    </section>
+
+    <section id="screen-check-input" class="screen hidden">
+      <h2>Check an existing report</h2>
+      <p class="sample-note">Paste a report comment you've already written. We'll check it against Wesley's grammar and style guide and show you what, if anything, should change.</p>
+      <label class="freetext-label" for="check-text-input">Report text:</label>
+      <textarea id="check-text-input" rows="10" placeholder="Paste your report text here..."></textarea>
+      <p id="check-input-error" class="error-banner hidden"></p>
+      <div class="nav-buttons">
+        <button id="check-back-btn" class="btn btn-secondary">Back</button>
+        <button id="check-submit-btn" class="btn btn-primary">Check it</button>
+      </div>
+    </section>
+
+    <section id="screen-check-result" class="screen hidden">
+      <h2>Style check results</h2>
+      <p id="check-error-banner" class="error-banner hidden"></p>
+      <p id="check-loading-text" class="loading-text hidden">Checking your report...</p>
+      <div id="check-result-content" class="hidden">
+        <div class="compare-columns">
+          <div class="compare-box">
+            <p class="freetext-label">Original</p>
+            <div id="check-original-text" class="compare-text"></div>
+          </div>
+          <div class="compare-box">
+            <p class="freetext-label">Corrected</p>
+            <textarea id="check-corrected-text" rows="10" class="compare-text"></textarea>
+          </div>
+        </div>
+        <div id="check-changes-wrapper">
+          <p class="freetext-label" style="margin-top: 1.5rem;">Changes made:</p>
+          <ul id="check-changes-list" class="changes-list"></ul>
+        </div>
+        <p id="check-no-changes-note" class="tone-note hidden">No issues found - this report already matches Wesley's style guide.</p>
+      </div>
+      <div class="result-buttons">
+        <button id="check-copy-btn" class="btn btn-primary hidden">Copy corrected text</button>
+        <button id="check-another-btn" class="btn btn-secondary hidden">Check another report</button>
       </div>
     </section>
 
@@ -161,7 +201,7 @@
    </div>
   </main>
 
-  <p class="app-version">v2026.08.31-5</p>
+  <p class="app-version">v2026.08.31-6</p>
 
   <script src="script.js"></script>
 </body>

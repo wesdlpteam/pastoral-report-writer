@@ -386,6 +386,64 @@ select:focus-visible {
   margin-top: var(--space-sm);
 }
 
+.compare-columns {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.compare-box {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.compare-text {
+  margin-top: var(--space-xs);
+  height: 240px;
+  overflow-y: auto;
+  padding: 0.75rem;
+  border: 2px solid var(--wes-neutral-300);
+  border-radius: 4px;
+  background: var(--wes-white);
+  color: var(--wes-neutral-900);
+  white-space: pre-wrap;
+  font-family: var(--wes-font-ui);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.changes-list {
+  margin: var(--space-sm) 0 0;
+  padding-left: 1.2rem;
+}
+
+.changes-list li {
+  margin-bottom: var(--space-sm);
+}
+
+.change-original {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.change-corrected {
+  color: var(--wes-purple);
+  font-weight: 600;
+}
+
+.change-reason {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+@media (max-width: 600px) {
+  .compare-columns {
+    flex-direction: column;
+  }
+}
+
 .checklist-note {
   background: var(--wes-neutral-200);
   color: var(--wes-neutral-900);
