@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -11,7 +12,10 @@ from prompts import build_system_prompt, build_user_prompt
 from tone_guide import find_tempered_words
 from word_count import count_words, get_range, is_in_range
 
+logger = logging.getLogger(__name__)
+
 MIN_WORDS_PER_ANSWER = 5
+MAX_PRONOUN_LENGTH = 30
 
 app = Flask(__name__)
 
@@ -37,7 +41,7 @@ def generate():
     formal_name = str(data.get("formal_name", "")).strip()
     preferred_name = str(data.get("preferred_name", "")).strip() or None
     answers = data.get("answers")
-    pronouns = data.get("pronouns", "they/them")
+    pronouns = str(data.get("pronouns", "they/them"))[:MAX_PRONOUN_LENGTH]
     year_level = data.get("year_level")
     tutor_group = data.get("tutor_group")
     house = data.get("house")
@@ -81,7 +85,10 @@ def generate():
     try:
         draft = generate_draft(system_prompt, user_prompt)
     except DraftGenerationError as exc:
-        return jsonify({"error": str(exc)}), 502
+        logger.error("Draft generation failed: %s", exc)
+        return jsonify(
+            {"error": "Something went wrong generating your draft. Please try again in a moment."}
+        ), 502
 
     word_count = count_words(draft)
     low, high = get_range(report_type)

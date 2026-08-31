@@ -1,3 +1,5 @@
+import logging
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,7 +23,10 @@ from prompts import (
 from tone_guide import find_tempered_words
 from word_count import count_words, get_range, is_in_range
 
+logger = logging.getLogger(__name__)
+
 MIN_WORDS_PER_ANSWER = 5
+MAX_PRONOUN_LENGTH = 30
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
@@ -37,7 +42,7 @@ def generate():
     report_type = data.get("report_type")
     formal_name = str(data.get("formal_name", "")).strip()
     preferred_name = str(data.get("preferred_name", "")).strip() or None
-    pronouns = data.get("pronouns", "they/them")
+    pronouns = str(data.get("pronouns", "they/them"))[:MAX_PRONOUN_LENGTH]
     year_level = data.get("year_level")
     tutor_group = data.get("tutor_group")
     house = data.get("house")
@@ -81,7 +86,10 @@ def generate():
     try:
         draft = generate_draft(system_prompt, user_prompt)
     except DraftGenerationError as exc:
-        return jsonify({"error": str(exc)}), 502
+        logger.error("Draft generation failed: %s", exc)
+        return jsonify(
+            {"error": "Something went wrong generating your draft. Please try again in a moment."}
+        ), 502
 
     word_count = count_words(draft)
     low, high = get_range(report_type)
@@ -104,7 +112,7 @@ def followup():
     report_type = data.get("report_type")
     question_id = data.get("question_id")
     answer = str(data.get("answer", "")).strip()
-    pronouns = data.get("pronouns", "they/them")
+    pronouns = str(data.get("pronouns", "they/them"))[:MAX_PRONOUN_LENGTH]
 
     if report_type not in ANSWER_LABELS:
         return jsonify({"error": "report_type must be 'tutor'"}), 400
@@ -119,7 +127,10 @@ def followup():
     try:
         result = generate_followup(FOLLOWUP_SYSTEM_PROMPT, user_prompt)
     except FollowupGenerationError as exc:
-        return jsonify({"error": str(exc)}), 502
+        logger.error("Follow-up generation failed: %s", exc)
+        return jsonify(
+            {"error": "Something went wrong getting a follow-up question. Please try again."}
+        ), 502
 
     return jsonify(result)
 

@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -7,6 +8,10 @@ from flask import Flask, jsonify, request
 
 from openai_client import FollowupGenerationError, generate_followup
 from prompts import ANSWER_LABELS, FOLLOWUP_SYSTEM_PROMPT, build_followup_user_prompt
+
+logger = logging.getLogger(__name__)
+
+MAX_PRONOUN_LENGTH = 30
 
 app = Flask(__name__)
 
@@ -31,7 +36,7 @@ def followup():
     report_type = data.get("report_type")
     question_id = data.get("question_id")
     answer = str(data.get("answer", "")).strip()
-    pronouns = data.get("pronouns", "they/them")
+    pronouns = str(data.get("pronouns", "they/them"))[:MAX_PRONOUN_LENGTH]
 
     if report_type not in ANSWER_LABELS:
         return jsonify({"error": "report_type must be 'tutor'"}), 400
@@ -46,6 +51,9 @@ def followup():
     try:
         result = generate_followup(FOLLOWUP_SYSTEM_PROMPT, user_prompt)
     except FollowupGenerationError as exc:
-        return jsonify({"error": str(exc)}), 502
+        logger.error("Follow-up generation failed: %s", exc)
+        return jsonify(
+            {"error": "Something went wrong getting a follow-up question. Please try again."}
+        ), 502
 
     return jsonify(result)

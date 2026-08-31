@@ -127,6 +127,27 @@ def test_generate_passes_year_level_to_myp_note(mock_generate_draft, client):
 
 
 @patch("app.generate_draft")
+def test_generate_caps_pronoun_length(mock_generate_draft, client):
+    mock_generate_draft.return_value = " ".join(["word"] * 120)
+    long_pronoun = "x" * 200
+
+    client.post(
+        "/api/generate",
+        json={
+            "report_type": "tutor",
+            "formal_name": "Jane Test",
+            "pronouns": long_pronoun,
+            "answers": {"person": "shows resilience and works well with peers"},
+        },
+    )
+
+    system_prompt, user_prompt = mock_generate_draft.call_args[0]
+    assert long_pronoun not in system_prompt
+    assert long_pronoun not in user_prompt
+    assert "x" * 30 in user_prompt
+
+
+@patch("app.generate_draft")
 def test_generate_openai_failure_returns_502(mock_generate_draft, client):
     from openai_client import DraftGenerationError
 
@@ -146,6 +167,9 @@ def test_generate_openai_failure_returns_502(mock_generate_draft, client):
     )
 
     assert response.status_code == 502
+    error = response.get_json()["error"]
+    assert "boom" not in error
+    assert "went wrong" in error
 
 
 def test_generate_answer_too_short(client):
@@ -277,3 +301,6 @@ def test_followup_openai_failure_returns_502(mock_generate_followup, client):
     )
 
     assert response.status_code == 502
+    error = response.get_json()["error"]
+    assert "boom" not in error
+    assert "went wrong" in error
