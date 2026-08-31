@@ -178,7 +178,7 @@ def test_generate_style_check_no_issues_found(mock_openai_class, monkeypatch):
 
     result = generate_style_check("system prompt", "user prompt")
 
-    assert result == {"corrected_text": "Already fine.", "changes": []}
+    assert result == {"corrected_text": "Already fine.", "changes": [], "suggestions": []}
 
 
 @patch("openai_client.OpenAI")

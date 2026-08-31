@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 MIN_WORDS_PER_ANSWER = 5
 MAX_PRONOUN_LENGTH = 30
 MIN_CHECK_WORDS = 15
-MAX_CHECK_WORDS = 400
+MAX_CHECK_WORDS = 600
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
@@ -169,7 +169,11 @@ def style_check():
             {"error": "Something went wrong checking your report. Please try again in a moment."}
         ), 502
 
+    low, high = get_range("tutor")
     result["original_text"] = text
+    result["word_count"] = word_count
+    result["target_range"] = [low, high]
+    result["meets_minimum_length"] = word_count >= low
     return jsonify(result)
 
 

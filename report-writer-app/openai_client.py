@@ -103,4 +103,9 @@ def generate_style_check(system_prompt: str, user_prompt: str) -> dict:
                 }
             )
 
-    return {"corrected_text": corrected_text, "changes": changes}
+    raw_suggestions = data.get("suggestions", [])
+    suggestions = []
+    if isinstance(raw_suggestions, list):
+        suggestions = [str(s).strip() for s in raw_suggestions if str(s).strip()]
+
+    return {"corrected_text": corrected_text, "changes": changes, "suggestions": suggestions}

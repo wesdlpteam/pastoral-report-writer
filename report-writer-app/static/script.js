@@ -90,6 +90,9 @@ const checkCorrectedTextEl = document.getElementById("check-corrected-text");
 const checkChangesWrapper = document.getElementById("check-changes-wrapper");
 const checkChangesList = document.getElementById("check-changes-list");
 const checkNoChangesNote = document.getElementById("check-no-changes-note");
+const checkLengthNote = document.getElementById("check-length-note");
+const checkSuggestionsWrapper = document.getElementById("check-suggestions-wrapper");
+const checkSuggestionsList = document.getElementById("check-suggestions-list");
 const checkCopyBtn = document.getElementById("check-copy-btn");
 const checkAnotherBtn = document.getElementById("check-another-btn");
 
@@ -809,8 +812,8 @@ checkSubmitBtn.addEventListener("click", () => {
     checkInputError.classList.remove("hidden");
     return;
   }
-  if (wordCount > 400) {
-    checkInputError.textContent = "Please paste no more than 400 words at a time.";
+  if (wordCount > 600) {
+    checkInputError.textContent = "Please paste no more than 600 words at a time.";
     checkInputError.classList.remove("hidden");
     return;
   }
@@ -856,6 +859,28 @@ async function runStyleCheck(text) {
 function renderCheckResult(result) {
   checkOriginalTextEl.textContent = result.original_text || "";
   checkCorrectedTextEl.value = result.corrected_text || "";
+
+  if (result.meets_minimum_length === false && result.target_range) {
+    checkLengthNote.textContent =
+      `This report is ${result.word_count} words. Wesley's Tutor Report guideline is ` +
+      `${result.target_range[0]}-${result.target_range[1]} words, so this is below the minimum.`;
+    checkLengthNote.classList.remove("hidden");
+  } else {
+    checkLengthNote.classList.add("hidden");
+  }
+
+  const suggestions = result.suggestions || [];
+  checkSuggestionsList.innerHTML = "";
+  if (suggestions.length === 0) {
+    checkSuggestionsWrapper.classList.add("hidden");
+  } else {
+    checkSuggestionsWrapper.classList.remove("hidden");
+    suggestions.forEach((suggestion) => {
+      const li = document.createElement("li");
+      li.textContent = suggestion;
+      checkSuggestionsList.appendChild(li);
+    });
+  }
 
   const changes = result.changes || [];
   checkChangesList.innerHTML = "";

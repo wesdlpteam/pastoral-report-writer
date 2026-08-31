@@ -179,6 +179,14 @@ def test_style_check_system_prompt_leaves_names_alone():
     assert "names exactly as given" in STYLE_CHECK_SYSTEM_PROMPT.lower()
 
 
+def test_style_check_system_prompt_requests_theme_coverage_suggestions():
+    lower = STYLE_CHECK_SYSTEM_PROMPT.lower()
+    assert "suggestions" in lower
+    assert "four themes" in lower
+    assert "tutor group" in lower
+    assert "never invent a" in lower
+
+
 def test_build_style_check_user_prompt_includes_text():
     prompt = build_style_check_user_prompt("This is the report text.")
     assert "This is the report text." in prompt

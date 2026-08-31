@@ -319,7 +319,7 @@ def test_style_check_too_short(client):
 
 
 def test_style_check_too_long(client):
-    response = client.post("/api/style_check", json={"text": "word " * 401})
+    response = client.post("/api/style_check", json={"text": "word " * 601})
     assert response.status_code == 400
     assert "no more than" in response.get_json()["error"]
 
@@ -336,6 +336,7 @@ def test_style_check_success(mock_generate_style_check, client):
     mock_generate_style_check.return_value = {
         "corrected_text": "The corrected report text goes here for the student.",
         "changes": [{"original": "Y10", "corrected": "Year 10", "reason": "house style"}],
+        "suggestions": ["Add more detail about the student's participation in the Tutor Group."],
     }
     text = "The report text goes here about the student in Y10 for this term, overall, and beyond."
 
@@ -345,7 +346,31 @@ def test_style_check_success(mock_generate_style_check, client):
     body = response.get_json()
     assert body["corrected_text"] == "The corrected report text goes here for the student."
     assert body["changes"] == [{"original": "Y10", "corrected": "Year 10", "reason": "house style"}]
+    assert body["suggestions"] == [
+        "Add more detail about the student's participation in the Tutor Group."
+    ]
     assert body["original_text"] == text
+    assert body["word_count"] == len(text.split())
+    assert body["target_range"] == [100, 150]
+    assert body["meets_minimum_length"] is False
+
+
+@patch("app.generate_style_check")
+def test_style_check_meets_minimum_length_when_over_100_words(mock_generate_style_check, client):
+    mock_generate_style_check.return_value = {
+        "corrected_text": "Corrected.",
+        "changes": [],
+        "suggestions": [],
+    }
+    text = "word " * 120
+
+    response = client.post("/api/style_check", json={"text": text})
+
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["word_count"] == 120
+    assert body["target_range"] == [100, 150]
+    assert body["meets_minimum_length"] is True
 
 
 @patch("app.generate_style_check")

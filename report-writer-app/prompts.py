@@ -307,12 +307,30 @@ STYLE_CHECK_SYSTEM_PROMPT = (
     + STYLE_GUIDE_NOTES
     + "\n\n"
     + WESLEY_GRAMMAR_STYLE_NOTES
-    + "\n\nRespond with JSON only, in this exact shape: "
+    + "\n\nSECOND TASK - content coverage: a Wesley Tutor Report comment "
+    "should cover four themes: (1) the student as a person (character, "
+    "resilience, ROAR values); (2) the student as a learner (academic "
+    "progress, approach to learning); (3) the student as a participant "
+    "in the Tutor Group (engagement with, and contribution to, the "
+    "Tutor Group); (4) a summarising comment (development stage or "
+    "Student Reflection Rubric element, peer engagement, leadership, "
+    "Education Outdoors, or other observations). Read the text and "
+    "note any of these four themes that are missing entirely or only "
+    "thinly covered. For each one, add a short, specific suggestion "
+    "of the kind of thing the teacher could add - never invent a "
+    "detail about the actual student, just describe the type of "
+    "content that belongs there (e.g. \"Theme 3 (Tutor Group "
+    "participation) isn't covered - consider adding a sentence about "
+    "how the student engages with or contributes to the Tutor "
+    "Group\"). If all four themes are well covered, return an empty "
+    "suggestions array.\n\n"
+    "Respond with JSON only, in this exact shape: "
     '{"corrected_text": "...", "changes": [{"original": "...", '
-    '"corrected": "...", "reason": "..."}]}. List every distinct change '
-    "you made in the changes array, each with a short plain-English "
-    "reason. If you find no issues, return the original text unchanged "
-    "in corrected_text and an empty changes array."
+    '"corrected": "...", "reason": "..."}], "suggestions": ["..."]}. '
+    "List every distinct grammar/style change you made in the changes "
+    "array, each with a short plain-English reason. If you find no "
+    "grammar/style issues, return the original text unchanged in "
+    "corrected_text and an empty changes array."
 )
 
 

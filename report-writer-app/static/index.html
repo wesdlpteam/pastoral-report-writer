@@ -51,6 +51,7 @@
       <p id="check-error-banner" class="error-banner hidden"></p>
       <p id="check-loading-text" class="loading-text hidden">Checking your report...</p>
       <div id="check-result-content" class="hidden">
+        <p id="check-length-note" class="error-banner hidden"></p>
         <div class="compare-columns">
           <div class="compare-box">
             <p class="freetext-label">Original</p>
@@ -66,6 +67,10 @@
           <ul id="check-changes-list" class="changes-list"></ul>
         </div>
         <p id="check-no-changes-note" class="tone-note hidden">No issues found - this report already matches Wesley's style guide.</p>
+        <div id="check-suggestions-wrapper" class="hidden">
+          <p class="freetext-label" style="margin-top: 1.5rem;">Suggestions to strengthen this report:</p>
+          <ul id="check-suggestions-list" class="changes-list"></ul>
+        </div>
       </div>
       <div class="result-buttons">
         <button id="check-copy-btn" class="btn btn-primary hidden">Copy corrected text</button>
@@ -201,7 +206,7 @@
    </div>
   </main>
 
-  <p class="app-version">v2026.08.31-7</p>
+  <p class="app-version">v2026.08.31-8</p>
 
   <script src="script.js"></script>
 </body>

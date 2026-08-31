@@ -9,11 +9,12 @@ from flask import Flask, jsonify, request
 from content_filter import find_bad_words
 from openai_client import StyleCheckGenerationError, generate_style_check
 from prompts import STYLE_CHECK_SYSTEM_PROMPT, build_style_check_user_prompt
+from word_count import get_range
 
 logger = logging.getLogger(__name__)
 
 MIN_CHECK_WORDS = 15
-MAX_CHECK_WORDS = 400
+MAX_CHECK_WORDS = 600
 
 app = Flask(__name__)
 
@@ -59,5 +60,9 @@ def style_check():
             {"error": "Something went wrong checking your report. Please try again in a moment."}
         ), 502
 
+    low, high = get_range("tutor")
     result["original_text"] = text
+    result["word_count"] = word_count
+    result["target_range"] = [low, high]
+    result["meets_minimum_length"] = word_count >= low
     return jsonify(result)
