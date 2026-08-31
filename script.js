@@ -45,11 +45,11 @@ const QUESTIONS = {
     [
       {
         id: "summary",
-        question: "What's a fitting summarising comment for this student? (their development, engagement with peers, leadership, Education Outdoors, or goals for next term)",
+        question: "Has the student reflected on a specific Student Reflection Rubric element this term (e.g. acting with courage, being persistent, generating feedback loops)? What did they say or show?",
       },
       {
         id: "summary",
-        question: "What has been a highlight, memorable moment, or general observation about this student this term?",
+        question: "What has been a highlight, memorable moment, or general observation about this student this term? (their development, engagement with peers, leadership, or Education Outdoors)",
       },
     ],
   ],
