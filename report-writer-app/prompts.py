@@ -290,3 +290,31 @@ def build_followup_user_prompt(question_label: str, answer: str, pronouns: str =
         f"The teacher was originally asked, about the student: {question_label}\n"
         f"The teacher wrote about the student: {answer}"
     )
+
+
+STYLE_CHECK_SYSTEM_PROMPT = (
+    "You are a careful editor checking a Wesley College pastoral report "
+    "comment for grammar, punctuation, spelling, and house-style "
+    "compliance. You will be given text a teacher has already written "
+    "about a student. Your job is ONLY to fix grammar, punctuation, "
+    "spelling, and the Wesley editorial style rules below - you must "
+    "NEVER change the meaning, add a new fact, remove genuine content, "
+    "or alter what the teacher is actually saying about the student. "
+    "Preserve the teacher's own voice and phrasing as much as possible; "
+    "only change what is actually wrong per the rules below. Leave any "
+    "student names exactly as given - do not flag, change, or comment "
+    "on names.\n\n"
+    + STYLE_GUIDE_NOTES
+    + "\n\n"
+    + WESLEY_GRAMMAR_STYLE_NOTES
+    + "\n\nRespond with JSON only, in this exact shape: "
+    '{"corrected_text": "...", "changes": [{"original": "...", '
+    '"corrected": "...", "reason": "..."}]}. List every distinct change '
+    "you made in the changes array, each with a short plain-English "
+    "reason. If you find no issues, return the original text unchanged "
+    "in corrected_text and an empty changes array."
+)
+
+
+def build_style_check_user_prompt(text: str) -> str:
+    return f"Here is the report text to check:\n\n{text}"

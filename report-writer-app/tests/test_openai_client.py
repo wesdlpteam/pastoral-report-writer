@@ -5,8 +5,10 @@ import pytest
 from openai_client import (
     DraftGenerationError,
     FollowupGenerationError,
+    StyleCheckGenerationError,
     generate_draft,
     generate_followup,
+    generate_style_check,
 )
 
 
@@ -124,3 +126,80 @@ def test_generate_followup_api_failure(mock_openai_class, monkeypatch):
 
     with pytest.raises(FollowupGenerationError, match="OpenAI request failed"):
         generate_followup("system prompt", "user prompt")
+
+
+def test_generate_style_check_missing_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    with pytest.raises(StyleCheckGenerationError, match="OPENAI_API_KEY"):
+        generate_style_check("system", "user")
+
+
+@patch("openai_client.OpenAI")
+def test_generate_style_check_success(mock_openai_class, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "unittest")
+    mock_client = MagicMock()
+    mock_response = MagicMock()
+    mock_response.choices = [
+        MagicMock(
+            message=MagicMock(
+                content=(
+                    '{"corrected_text": "Corrected report.", '
+                    '"changes": [{"original": "Y10", "corrected": "Year 10", '
+                    '"reason": "house style"}]}'
+                )
+            )
+        )
+    ]
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_openai_class.return_value = mock_client
+
+    result = generate_style_check("system prompt", "user prompt")
+
+    assert result["corrected_text"] == "Corrected report."
+    assert result["changes"] == [
+        {"original": "Y10", "corrected": "Year 10", "reason": "house style"}
+    ]
+    _, kwargs = mock_client.chat.completions.create.call_args
+    assert kwargs["response_format"] == {"type": "json_object"}
+
+
+@patch("openai_client.OpenAI")
+def test_generate_style_check_no_issues_found(mock_openai_class, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "unittest")
+    mock_client = MagicMock()
+    mock_response = MagicMock()
+    mock_response.choices = [
+        MagicMock(
+            message=MagicMock(content='{"corrected_text": "Already fine.", "changes": []}')
+        )
+    ]
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_openai_class.return_value = mock_client
+
+    result = generate_style_check("system prompt", "user prompt")
+
+    assert result == {"corrected_text": "Already fine.", "changes": []}
+
+
+@patch("openai_client.OpenAI")
+def test_generate_style_check_missing_corrected_text_raises(mock_openai_class, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "unittest")
+    mock_client = MagicMock()
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock(message=MagicMock(content='{"changes": []}'))]
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_openai_class.return_value = mock_client
+
+    with pytest.raises(StyleCheckGenerationError):
+        generate_style_check("system prompt", "user prompt")
+
+
+@patch("openai_client.OpenAI")
+def test_generate_style_check_api_failure(mock_openai_class, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "unittest")
+    mock_client = MagicMock()
+    mock_client.chat.completions.create.side_effect = RuntimeError("network down")
+    mock_openai_class.return_value = mock_client
+
+    with pytest.raises(StyleCheckGenerationError, match="OpenAI request failed"):
+        generate_style_check("system prompt", "user prompt")

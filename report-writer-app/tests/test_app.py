@@ -304,3 +304,60 @@ def test_followup_openai_failure_returns_502(mock_generate_followup, client):
     error = response.get_json()["error"]
     assert "boom" not in error
     assert "went wrong" in error
+
+
+def test_style_check_missing_text(client):
+    response = client.post("/api/style_check", json={})
+    assert response.status_code == 400
+    assert "paste the report text" in response.get_json()["error"]
+
+
+def test_style_check_too_short(client):
+    response = client.post("/api/style_check", json={"text": "Too short."})
+    assert response.status_code == 400
+    assert "at least" in response.get_json()["error"]
+
+
+def test_style_check_too_long(client):
+    response = client.post("/api/style_check", json={"text": "word " * 401})
+    assert response.status_code == 400
+    assert "no more than" in response.get_json()["error"]
+
+
+def test_style_check_bad_word(client):
+    text = "This is a shit report about the student's term and their overall progress this year."
+    response = client.post("/api/style_check", json={"text": text})
+    assert response.status_code == 400
+    assert "inappropriate language" in response.get_json()["error"]
+
+
+@patch("app.generate_style_check")
+def test_style_check_success(mock_generate_style_check, client):
+    mock_generate_style_check.return_value = {
+        "corrected_text": "The corrected report text goes here for the student.",
+        "changes": [{"original": "Y10", "corrected": "Year 10", "reason": "house style"}],
+    }
+    text = "The report text goes here about the student in Y10 for this term, overall, and beyond."
+
+    response = client.post("/api/style_check", json={"text": text})
+
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["corrected_text"] == "The corrected report text goes here for the student."
+    assert body["changes"] == [{"original": "Y10", "corrected": "Year 10", "reason": "house style"}]
+    assert body["original_text"] == text
+
+
+@patch("app.generate_style_check")
+def test_style_check_openai_failure_returns_502(mock_generate_style_check, client):
+    from openai_client import StyleCheckGenerationError
+
+    mock_generate_style_check.side_effect = StyleCheckGenerationError("boom")
+    text = "The report text goes here about the student in Y10 for this term, overall, and beyond."
+
+    response = client.post("/api/style_check", json={"text": text})
+
+    assert response.status_code == 502
+    error = response.get_json()["error"]
+    assert "boom" not in error
+    assert "went wrong" in error

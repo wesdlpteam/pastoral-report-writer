@@ -1,6 +1,8 @@
 from prompts import (
     FOLLOWUP_SYSTEM_PROMPT,
+    STYLE_CHECK_SYSTEM_PROMPT,
     build_followup_user_prompt,
+    build_style_check_user_prompt,
     build_system_prompt,
     build_user_prompt,
 )
@@ -152,3 +154,31 @@ def test_build_followup_user_prompt_includes_label_and_answer():
 def test_build_followup_user_prompt_includes_pronouns():
     prompt = build_followup_user_prompt("The student as a person", "resilient", pronouns="she/her")
     assert "she/her" in prompt
+
+
+def test_style_check_system_prompt_requires_json_response():
+    lower = STYLE_CHECK_SYSTEM_PROMPT.lower()
+    assert "json" in lower
+    assert "corrected_text" in lower
+    assert "changes" in lower
+
+
+def test_style_check_system_prompt_forbids_changing_meaning():
+    lower = STYLE_CHECK_SYSTEM_PROMPT.lower()
+    assert "never" in lower
+    assert "change the meaning" in lower or "meaning" in lower
+
+
+def test_style_check_system_prompt_includes_wesley_style_rules():
+    assert "First VI Volleyball" in STYLE_CHECK_SYSTEM_PROMPT
+    assert '"practise" is the verb' in STYLE_CHECK_SYSTEM_PROMPT
+
+
+def test_style_check_system_prompt_leaves_names_alone():
+    assert "leave any" in STYLE_CHECK_SYSTEM_PROMPT.lower()
+    assert "names exactly as given" in STYLE_CHECK_SYSTEM_PROMPT.lower()
+
+
+def test_build_style_check_user_prompt_includes_text():
+    prompt = build_style_check_user_prompt("This is the report text.")
+    assert "This is the report text." in prompt

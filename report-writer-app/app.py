@@ -10,13 +10,17 @@ from content_filter import find_bad_words, find_gibberish_words, has_low_word_di
 from openai_client import (
     DraftGenerationError,
     FollowupGenerationError,
+    StyleCheckGenerationError,
     generate_draft,
     generate_followup,
+    generate_style_check,
 )
 from prompts import (
     ANSWER_LABELS,
     FOLLOWUP_SYSTEM_PROMPT,
+    STYLE_CHECK_SYSTEM_PROMPT,
     build_followup_user_prompt,
+    build_style_check_user_prompt,
     build_system_prompt,
     build_user_prompt,
 )
@@ -27,6 +31,8 @@ logger = logging.getLogger(__name__)
 
 MIN_WORDS_PER_ANSWER = 5
 MAX_PRONOUN_LENGTH = 30
+MIN_CHECK_WORDS = 15
+MAX_CHECK_WORDS = 400
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
@@ -132,6 +138,38 @@ def followup():
             {"error": "Something went wrong getting a follow-up question. Please try again."}
         ), 502
 
+    return jsonify(result)
+
+
+@app.route("/api/style_check", methods=["POST"])
+def style_check():
+    data = request.get_json(silent=True) or {}
+    text = str(data.get("text", "")).strip()
+
+    if not text:
+        return jsonify({"error": "please paste the report text to check"}), 400
+
+    word_count = len(text.split())
+    if word_count < MIN_CHECK_WORDS:
+        return jsonify({"error": f"please paste at least {MIN_CHECK_WORDS} words"}), 400
+    if word_count > MAX_CHECK_WORDS:
+        return jsonify(
+            {"error": f"please paste no more than {MAX_CHECK_WORDS} words at a time"}
+        ), 400
+    if find_bad_words(text):
+        return jsonify({"error": "please remove inappropriate language before checking"}), 400
+
+    user_prompt = build_style_check_user_prompt(text)
+
+    try:
+        result = generate_style_check(STYLE_CHECK_SYSTEM_PROMPT, user_prompt)
+    except StyleCheckGenerationError as exc:
+        logger.error("Style check failed: %s", exc)
+        return jsonify(
+            {"error": "Something went wrong checking your report. Please try again in a moment."}
+        ), 502
+
+    result["original_text"] = text
     return jsonify(result)
 
 
