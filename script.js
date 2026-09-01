@@ -74,6 +74,7 @@ const state = {
 const screenWelcome = document.getElementById("screen-welcome");
 const startGuidedBtn = document.getElementById("start-guided-btn");
 const startCheckBtn = document.getElementById("start-check-btn");
+const homeBtn = document.getElementById("home-btn");
 
 const screenCheckInput = document.getElementById("screen-check-input");
 const checkTextInput = document.getElementById("check-text-input");
@@ -790,6 +791,11 @@ startGuidedBtn.addEventListener("click", () => {
 startCheckBtn.addEventListener("click", () => {
   localStorage.setItem(LS_WELCOME_SEEN, "1");
   showScreen(screenCheckInput);
+  setProgress(0);
+});
+
+homeBtn.addEventListener("click", () => {
+  showScreen(screenWelcome);
   setProgress(0);
 });
 
