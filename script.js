@@ -51,6 +51,10 @@ const QUESTIONS = {
         id: "summary",
         question: "What has been a highlight, memorable moment, or general observation about this student this term? (their development, engagement with peers, leadership, or Education Outdoors)",
       },
+      {
+        id: "summary",
+        question: "Has the student set any goals or talked about what they want to focus on next? What's a fitting summarising comment for them this term?",
+      },
     ],
   ],
 };
