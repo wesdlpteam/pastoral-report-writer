@@ -23,8 +23,8 @@ const QUESTIONS = {
     [
       {
         id: "learner",
-        question: "How are they progressing academically? What's their approach to learning and seeking feedback?",
-        mypQuestion: "How are they progressing academically? Which Learner Profile attribute (e.g. Inquirer, Thinker, Communicator) or ATL skill (e.g. Research, Self-management) stands out in their approach to learning?",
+        question: "How are they progressing academically? What's their approach to learning and seeking feedback? (If you don't teach this student yourself, subject teacher feedback or their WiSE results are good sources.)",
+        mypQuestion: "How are they progressing academically? Which Learner Profile attribute (e.g. Inquirer, Thinker, Communicator) or ATL skill (e.g. Research, Self-management) stands out in their approach to learning? (If you don't teach this student yourself, subject teacher feedback or their WiSE results are good sources.)",
       },
       {
         id: "learner",
