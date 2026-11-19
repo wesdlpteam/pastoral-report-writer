@@ -31,9 +31,10 @@ STYLE_GUIDE_NOTES = (
     "camp, carnival, assembly, award, ensemble, band, choir, team, "
     "program, trip, subject, Tutor Group, or House - write those as "
     "plain text with capital letters, e.g. Autumn Music Concert, not "
-    "*Autumn Music Concert*. NEVER replace a quotation mark with an "
-    "asterisk: if the teacher wrote a name inside quotation marks, "
-    "leave the quotation marks exactly as they are. "
+    "*Autumn Music Concert* and not \"Autumn Music Concert\" - those "
+    "names take no asterisks and no quotation marks. Quotation marks "
+    "are only for quoting someone's actual words, which you should "
+    "leave alone. NEVER replace a quotation mark with an asterisk. "
     "Title formatting: write \"Units 3 & 4\" not \"Unit "
     '3/4"; "Years 7 & 8" not "Year 7 & 8"; "Year 10" not "Y10"; '
     '"Senior School" not "SS"; "Middle School" not "MS"; write '

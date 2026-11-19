@@ -91,6 +91,14 @@ _EVENT_SUFFIX_WORDS = frozenset(
 _QUOTE_PAIRS = (('"', '"'), ("'", "'"), ("“", "”"), ("‘", "’"))
 
 _ASTERISK_PHRASE = re.compile(r"\*([^*\n]{2,80}?)\*")
+# A quoted phrase must open with a capital to be a candidate name, which also
+# keeps the pattern off apostrophes in words like "student's".
+_QUOTED_PHRASE_PATTERNS = (
+    re.compile(r"\"([A-Z][^\"\n]{1,79})\""),
+    re.compile(r"“([A-Z][^”\n]{1,79})”"),
+    re.compile(r"'([A-Z][^'\n]{1,79})'"),
+    re.compile(r"‘([A-Z][^’\n]{1,79})’"),
+)
 _MULTI_ASTERISK = re.compile(r"\*{2,}")
 # "as her tutor", "their tutor" - a title, so it takes a capital. Deliberately
 # anchored to a determiner so the verb in "he tutors his peers" is left alone.
@@ -115,18 +123,25 @@ def _sub_and_record(pattern, replacement, text, reason, changes):
     return new_text
 
 
+def _is_event_name(phrase):
+    """Is this phrase an event, award, ensemble or group name?"""
+    bare = phrase.strip().strip("\"'“”‘’")
+    if not bare or bare[-1] in ",.!?;:":
+        # Punctuation inside the marks means quoted speech, not a name.
+        return False
+    if any(name.lower() == bare.lower() for name in NEVER_ITALICISE):
+        return True
+    words = bare.split()
+    last_word = re.sub(r"[^A-Za-z]", "", words[-1]).lower() if words else ""
+    return last_word in _EVENT_SUFFIX_WORDS
+
+
 def _strip_event_italics(text, changes):
     """Remove asterisks the model wrapped around an event, award or group."""
 
     def replace(match):
         phrase = match.group(1)
-        bare = phrase.strip().strip("\"'“”‘’")
-        words = bare.split()
-        last_word = re.sub(r"[^A-Za-z]", "", words[-1]).lower() if words else ""
-        is_named = any(name.lower() == bare.lower() for name in NEVER_ITALICISE)
-        if is_named or last_word in _EVENT_SUFFIX_WORDS:
-            return phrase
-        return match.group(0)
+        return phrase if _is_event_name(phrase) else match.group(0)
 
     new_text = _ASTERISK_PHRASE.sub(replace, text)
     if new_text != text:
@@ -141,6 +156,37 @@ def _strip_event_italics(text, changes):
             }
         )
     return new_text
+
+
+def _strip_event_quotes(text, changes):
+    """Event names are plain capitalised text, so drop quote marks around them.
+
+    The style guide reserves quotation marks for quoting words or phrases, and
+    handles event and award names under capitals instead. Real quoted speech
+    carries its punctuation inside the marks, which is how it is told apart.
+    """
+    original = text
+
+    for pattern in _QUOTED_PHRASE_PATTERNS:
+
+        def replace(match):
+            phrase = match.group(1)
+            return phrase if _is_event_name(phrase) else match.group(0)
+
+        text = pattern.sub(replace, text)
+
+    if text != original:
+        changes.append(
+            {
+                "original": '"event or award name"',
+                "corrected": "event or award name",
+                "reason": (
+                    "event and award names are written as plain text with capital "
+                    "letters, not inside quotation marks"
+                ),
+            }
+        )
+    return text
 
 
 def restore_quoted_phrases(corrected, original):
@@ -201,13 +247,15 @@ def apply_house_style(text, original_text=None):
     text = _sub_and_record(
         _MULTI_ASTERISK, "*", text, "single asterisks mark italics for Word", changes
     )
-    # Quotation marks first: once the asterisks are stripped there is nothing
-    # left to tell us the model swapped them for the teacher's quote marks.
+    text = _strip_event_italics(text, changes)
+
+    # Only phrases that are not event names reach this point, so restoring the
+    # teacher's quote marks cannot fight with the rule below.
     if original_text:
         text, quote_changes = restore_quoted_phrases(text, original_text)
         changes.extend(quote_changes)
 
-    text = _strip_event_italics(text, changes)
+    text = _strip_event_quotes(text, changes)
 
     text = _sub_and_record(
         _TUTOR_GROUP,

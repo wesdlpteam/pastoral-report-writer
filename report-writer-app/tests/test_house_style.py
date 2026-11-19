@@ -72,9 +72,30 @@ def test_double_asterisks_collapse_to_one():
 
 
 def test_quotation_marks_are_restored_when_swapped_for_asterisks():
+    original = 'Her goal was to be more "organised" this term.'
+    corrected = "Her goal was to be more *organised* this term."
+    assert style(corrected, original) == original
+
+
+def test_event_names_do_not_get_quotation_marks_either():
+    text = 'She sang in the "Autumn Music Concert" last term.'
+    assert style(text) == "She sang in the Autumn Music Concert last term."
+
+
+def test_quoted_event_name_also_loses_asterisks_it_was_given():
     original = 'She sang in the "Autumn Music Concert" last term.'
     corrected = "She sang in the *Autumn Music Concert* last term."
-    assert style(corrected, original) == original
+    assert style(corrected, original) == "She sang in the Autumn Music Concert last term."
+
+
+def test_quoted_speech_keeps_its_quotation_marks():
+    text = '"I loved the Autumn Music Concert," she said.'
+    assert style(text) == text
+
+
+def test_apostrophes_in_ordinary_words_are_untouched():
+    text = "The student's work and her peers' feedback both improved."
+    assert style(text) == text
 
 
 def test_changes_explain_each_fix_in_plain_english():

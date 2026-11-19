@@ -71,6 +71,7 @@ def test_build_system_prompt_includes_title_italics_convention():
 def test_build_system_prompt_bans_asterisks_on_event_names():
     prompt = build_system_prompt("tutor")
     assert "*Autumn Music Concert*" in prompt
+    assert "no asterisks and no quotation marks" in prompt
     assert "NEVER replace a quotation mark with an asterisk" in prompt
 
 
