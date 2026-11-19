@@ -331,9 +331,9 @@ def test_style_check_bad_word(client):
     assert "inappropriate language" in response.get_json()["error"]
 
 
-@patch("app.generate_style_check")
-def test_style_check_success(mock_generate_style_check, client):
-    mock_generate_style_check.return_value = {
+@patch("app.check_report_text")
+def test_style_check_success(mock_check_report_text, client):
+    mock_check_report_text.return_value = {
         "corrected_text": "The corrected report text goes here for the student.",
         "changes": [{"original": "Y10", "corrected": "Year 10", "reason": "house style"}],
         "suggestions": ["Add more detail about the student's participation in the Tutor Group."],
@@ -355,9 +355,9 @@ def test_style_check_success(mock_generate_style_check, client):
     assert body["meets_minimum_length"] is False
 
 
-@patch("app.generate_style_check")
-def test_style_check_meets_minimum_length_when_over_100_words(mock_generate_style_check, client):
-    mock_generate_style_check.return_value = {
+@patch("app.check_report_text")
+def test_style_check_meets_minimum_length_when_over_100_words(mock_check_report_text, client):
+    mock_check_report_text.return_value = {
         "corrected_text": "Corrected.",
         "changes": [],
         "suggestions": [],
@@ -373,11 +373,11 @@ def test_style_check_meets_minimum_length_when_over_100_words(mock_generate_styl
     assert body["meets_minimum_length"] is True
 
 
-@patch("app.generate_style_check")
-def test_style_check_openai_failure_returns_502(mock_generate_style_check, client):
+@patch("app.check_report_text")
+def test_style_check_openai_failure_returns_502(mock_check_report_text, client):
     from openai_client import StyleCheckGenerationError
 
-    mock_generate_style_check.side_effect = StyleCheckGenerationError("boom")
+    mock_check_report_text.side_effect = StyleCheckGenerationError("boom")
     text = "The report text goes here about the student in Y10 for this term, overall, and beyond."
 
     response = client.post("/api/style_check", json={"text": text})

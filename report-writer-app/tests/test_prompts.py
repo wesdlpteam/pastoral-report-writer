@@ -68,6 +68,24 @@ def test_build_system_prompt_includes_title_italics_convention():
     assert "*To Kill a Mockingbird*" in prompt
 
 
+def test_build_system_prompt_bans_asterisks_on_event_names():
+    prompt = build_system_prompt("tutor")
+    assert "*Autumn Music Concert*" in prompt
+    assert "NEVER replace a quotation mark with an asterisk" in prompt
+
+
+def test_build_system_prompt_explains_semester_capitalisation():
+    prompt = build_system_prompt("tutor")
+    assert "always takes a small s" in prompt
+    assert '"Semester 2"' in prompt
+
+
+def test_build_system_prompt_requires_consistent_tutor_capital():
+    prompt = build_system_prompt("tutor")
+    assert "as her Tutor this year" in prompt
+    assert "capital every single time" in prompt
+
+
 def test_build_system_prompt_theme_three_is_tutor_group_participation():
     prompt = build_system_prompt("tutor")
     assert "participant in the Tutor Group" in prompt
@@ -159,8 +177,13 @@ def test_build_followup_user_prompt_includes_pronouns():
 def test_style_check_system_prompt_requires_json_response():
     lower = STYLE_CHECK_SYSTEM_PROMPT.lower()
     assert "json" in lower
-    assert "corrected_text" in lower
+    assert "corrected_paragraphs" in lower
     assert "changes" in lower
+
+
+def test_style_check_system_prompt_protects_paragraphs():
+    assert "PARAGRAPHS ARE SACRED" in STYLE_CHECK_SYSTEM_PROMPT
+    assert "Never merge two paragraphs" in STYLE_CHECK_SYSTEM_PROMPT
 
 
 def test_style_check_system_prompt_forbids_changing_meaning():
@@ -190,3 +213,10 @@ def test_style_check_system_prompt_requests_theme_coverage_suggestions():
 def test_build_style_check_user_prompt_includes_text():
     prompt = build_style_check_user_prompt("This is the report text.")
     assert "This is the report text." in prompt
+
+
+def test_build_style_check_user_prompt_numbers_each_paragraph():
+    prompt = build_style_check_user_prompt("First part.\n\nSecond part.")
+    assert "2 paragraph(s)" in prompt
+    assert "Paragraph 1:\nFirst part." in prompt
+    assert "Paragraph 2:\nSecond part." in prompt

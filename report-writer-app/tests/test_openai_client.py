@@ -6,10 +6,20 @@ from openai_client import (
     DraftGenerationError,
     FollowupGenerationError,
     StyleCheckGenerationError,
+    StyleCheckStructureError,
     generate_draft,
     generate_followup,
     generate_style_check,
 )
+
+
+def _mock_response(mock_openai_class, content):
+    mock_client = MagicMock()
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock(message=MagicMock(content=content))]
+    mock_client.chat.completions.create.return_value = mock_response
+    mock_openai_class.return_value = mock_client
+    return mock_client
 
 
 def test_generate_draft_missing_key(monkeypatch):
@@ -192,6 +202,47 @@ def test_generate_style_check_missing_corrected_text_raises(mock_openai_class, m
 
     with pytest.raises(StyleCheckGenerationError):
         generate_style_check("system prompt", "user prompt")
+
+
+@patch("openai_client.OpenAI")
+def test_generate_style_check_joins_corrected_paragraphs(mock_openai_class, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "unittest")
+    _mock_response(
+        mock_openai_class,
+        '{"corrected_paragraphs": ["First one.", "Second one."], "changes": []}',
+    )
+
+    result = generate_style_check("system", "user", expected_paragraphs=2)
+
+    assert result["corrected_text"] == "First one.\n\nSecond one."
+
+
+@patch("openai_client.OpenAI")
+def test_generate_style_check_rejects_merged_paragraphs(mock_openai_class, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "unittest")
+    _mock_response(
+        mock_openai_class,
+        '{"corrected_text": "First one. Second one.", "suggestions": ["Add theme 3."]}',
+    )
+
+    with pytest.raises(StyleCheckStructureError) as exc_info:
+        generate_style_check("system", "user", expected_paragraphs=2)
+
+    assert exc_info.value.suggestions == ["Add theme 3."]
+
+
+@patch("openai_client.OpenAI")
+def test_generate_style_check_accepts_corrected_text_with_right_paragraphs(
+    mock_openai_class, monkeypatch
+):
+    monkeypatch.setenv("OPENAI_API_KEY", "unittest")
+    _mock_response(
+        mock_openai_class, '{"corrected_text": "First one.\\n\\nSecond one.", "changes": []}'
+    )
+
+    result = generate_style_check("system", "user", expected_paragraphs=2)
+
+    assert result["corrected_text"] == "First one.\n\nSecond one."
 
 
 @patch("openai_client.OpenAI")

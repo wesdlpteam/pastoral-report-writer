@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask import Flask, jsonify, request
 
 from content_filter import find_bad_words, find_gibberish_words, has_low_word_diversity
+from house_style import apply_house_style
 from openai_client import DraftGenerationError, generate_draft
 from prompts import build_system_prompt, build_user_prompt
 from tone_guide import find_tempered_words
@@ -90,6 +91,7 @@ def generate():
             {"error": "Something went wrong generating your draft. Please try again in a moment."}
         ), 502
 
+    draft, _ = apply_house_style(draft)
     word_count = count_words(draft)
     low, high = get_range(report_type)
 

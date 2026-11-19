@@ -1,11 +1,17 @@
 from word_count import get_range
+from house_style import EVENT_AND_AWARD_NAMES, split_paragraphs
 from style_examples import TUTOR_EXAMPLES
 from tone_guide import TONE_GUARD
+
+EVENT_AND_AWARD_LIST = "; ".join(EVENT_AND_AWARD_NAMES)
 
 STYLE_GUIDE_NOTES = (
     "Follow Wesley College's editorial style: no contractions (write "
     '"do not" not "don\'t"); write "Year 9" not "Y9"; write "Semester 1" '
-    'and "Tutor Group" (two words, not class or tutorial group); use '
+    'and "Semester 2" with a capital S, but the word "semester" on its '
+    'own always takes a small s (e.g. "over the course of the '
+    'semester", "earlier this semester"); write "Tutor Group" (two '
+    "words, not class or tutorial group); use "
     "Australian English spelling (organisation, colour); avoid jargon "
     "and keep sentences clear; capitalise House when referring to the "
     "school house system. Use correct full MYP subject names, not "
@@ -17,25 +23,27 @@ STYLE_GUIDE_NOTES = (
     'vague like "a computer program" - and use its correct official '
     'capitalisation, for example: "PowerPoint" (one word, capital P), '
     '"Microsoft Word" (two words, capital M and capital W), "Paint '
-    'Shop Pro" (three words, each capitalised). Wrap the titles of '
-    "novels, films, or other creative works in asterisks so they can "
-    "be italicised after pasting into Word, e.g. *To Kill a "
-    "Mockingbird*. Title formatting: write \"Units 3 & 4\" not \"Unit "
+    'Shop Pro" (three words, each capitalised). ITALICS: wrap the title '
+    "of a published creative work - a novel, play, film, album, or "
+    "artwork - in asterisks so it can be italicised after pasting into "
+    "Word, e.g. *To Kill a Mockingbird*. Asterisks are ONLY for those "
+    "titles. NEVER put asterisks around the name of an event, concert, "
+    "camp, carnival, assembly, award, ensemble, band, choir, team, "
+    "program, trip, subject, Tutor Group, or House - write those as "
+    "plain text with capital letters, e.g. Autumn Music Concert, not "
+    "*Autumn Music Concert*. NEVER replace a quotation mark with an "
+    "asterisk: if the teacher wrote a name inside quotation marks, "
+    "leave the quotation marks exactly as they are. "
+    "Title formatting: write \"Units 3 & 4\" not \"Unit "
     '3/4"; "Years 7 & 8" not "Year 7 & 8"; "Year 10" not "Y10"; '
     '"Senior School" not "SS"; "Middle School" not "MS"; write '
     '"Homeroom" as one word and "Tutor Group" as two words; use '
     '"peers", "class members", or "others" instead of "classmates". '
     "If the teacher mentions a specific award, ensemble, event, or "
-    "leadership title, keep it exactly as named and capitalised, for "
-    "example: Middle School Award for Citizenship / Endeavour / "
-    "Special Achievement; Middle School Award for Academic "
-    "Achievement or General Excellence; Principal's Honour Roll; "
-    "Senior School Colours, College Colours, or Honour Colours; Stage "
-    "Band, Concert Band, TJ Band, Wastell Strings, Dolce Canto Choir, "
-    "Wilkie Orchestra; Autumn Music Concert, BMW Edge Concert, winter "
-    "music camp; Senior School Prefect, Junior School Leader, Middle "
-    "School Leader, Middle School Executive. For a theatre production, "
-    'use the actual title of the production rather than "Theatre".'
+    "leadership title, keep it exactly as named and capitalised, with "
+    "no asterisks around it, for example: " + EVENT_AND_AWARD_LIST + ". "
+    "For a theatre production, use the actual title of the production "
+    'rather than "Theatre".'
 )
 
 WESLEY_GRAMMAR_STYLE_NOTES = (
@@ -44,7 +52,10 @@ WESLEY_GRAMMAR_STYLE_NOTES = (
     "Music, French, Mathematics) take a capital, but general "
     "principles do not, e.g. \"mathematical principles\" or "
     "\"linguistic difficulties\" stay lowercase; titles like Homeroom "
-    "Teacher, Tutor, and Principal begin with a capital letter. "
+    "Teacher, Tutor, and Principal always begin with a capital letter, "
+    "including when they follow a possessive word, e.g. \"It has been a "
+    "pleasure supporting Jane as her Tutor this year\", \"their Tutor\", "
+    '"the Tutor" - be consistent and use the capital every single time. '
     "Sports teams: capitalise properly, e.g. \"First VI Volleyball\", "
     "\"Second XI Soccer\" - never use \"1st\" etc. except for a "
     "result like \"1st place\"; the name of a sport itself stays "
@@ -304,6 +315,12 @@ STYLE_CHECK_SYSTEM_PROMPT = (
     "only change what is actually wrong per the rules below. Leave any "
     "student names exactly as given - do not flag, change, or comment "
     "on names.\n\n"
+    "PARAGRAPHS ARE SACRED: the text below is split into numbered "
+    "paragraphs. You MUST return exactly the same number of paragraphs, "
+    "in the same order, with the same paragraph breaks. Never merge two "
+    "paragraphs into one, never split one into two, never drop a "
+    "paragraph, and never move a sentence from one paragraph to "
+    "another.\n\n"
     + STYLE_GUIDE_NOTES
     + "\n\n"
     + WESLEY_GRAMMAR_STYLE_NOTES
@@ -325,14 +342,48 @@ STYLE_CHECK_SYSTEM_PROMPT = (
     "Group\"). If all four themes are well covered, return an empty "
     "suggestions array.\n\n"
     "Respond with JSON only, in this exact shape: "
-    '{"corrected_text": "...", "changes": [{"original": "...", '
-    '"corrected": "...", "reason": "..."}], "suggestions": ["..."]}. '
+    '{"corrected_paragraphs": ["...", "..."], "changes": '
+    '[{"original": "...", "corrected": "...", "reason": "..."}], '
+    '"suggestions": ["..."]}. The corrected_paragraphs array must have '
+    "exactly one item per numbered paragraph you were given, in the "
+    "same order - this is how the paragraph breaks are kept. "
     "List every distinct grammar/style change you made in the changes "
     "array, each with a short plain-English reason. If you find no "
-    "grammar/style issues, return the original text unchanged in "
-    "corrected_text and an empty changes array."
+    "grammar/style issues, return the paragraphs unchanged and an empty "
+    "changes array."
+)
+
+# Used only as a fallback, one paragraph at a time, when the model fails to
+# return the right number of paragraphs in a single pass.
+STYLE_CHECK_PARAGRAPH_SYSTEM_PROMPT = (
+    "You are a careful editor checking ONE paragraph of a Wesley College "
+    "pastoral report comment for grammar, punctuation, spelling, and "
+    "house-style compliance. Fix only grammar, punctuation, spelling, "
+    "and the Wesley editorial style rules below - NEVER change the "
+    "meaning, add a fact, remove genuine content, or alter what the "
+    "teacher is saying about the student. Leave student names exactly "
+    "as given. Return ONE paragraph: never split it, never add a "
+    "paragraph break.\n\n"
+    + STYLE_GUIDE_NOTES
+    + "\n\n"
+    + WESLEY_GRAMMAR_STYLE_NOTES
+    + "\n\nRespond with JSON only, in this exact shape: "
+    '{"corrected_text": "...", "changes": [{"original": "...", '
+    '"corrected": "...", "reason": "..."}]}'
 )
 
 
 def build_style_check_user_prompt(text: str) -> str:
-    return f"Here is the report text to check:\n\n{text}"
+    paragraphs = split_paragraphs(text)
+    numbered = "\n\n".join(
+        f"Paragraph {i}:\n{paragraph}" for i, paragraph in enumerate(paragraphs, start=1)
+    )
+    return (
+        f"Here is the report text to check, as {len(paragraphs)} "
+        f"paragraph(s). Return exactly {len(paragraphs)} item(s) in "
+        f"corrected_paragraphs.\n\n{numbered}"
+    )
+
+
+def build_style_check_paragraph_user_prompt(paragraph: str) -> str:
+    return f"Here is the single paragraph to check:\n\n{paragraph}"

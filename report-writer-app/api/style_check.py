@@ -7,8 +7,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask import Flask, jsonify, request
 
 from content_filter import find_bad_words
-from openai_client import StyleCheckGenerationError, generate_style_check
-from prompts import STYLE_CHECK_SYSTEM_PROMPT, build_style_check_user_prompt
+from openai_client import StyleCheckGenerationError
+from style_checker import check_report_text
 from word_count import get_range
 
 logger = logging.getLogger(__name__)
@@ -50,10 +50,8 @@ def style_check():
     if find_bad_words(text):
         return jsonify({"error": "please remove inappropriate language before checking"}), 400
 
-    user_prompt = build_style_check_user_prompt(text)
-
     try:
-        result = generate_style_check(STYLE_CHECK_SYSTEM_PROMPT, user_prompt)
+        result = check_report_text(text)
     except StyleCheckGenerationError as exc:
         logger.error("Style check failed: %s", exc)
         return jsonify(

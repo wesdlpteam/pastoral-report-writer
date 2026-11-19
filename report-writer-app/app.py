@@ -7,23 +7,22 @@ load_dotenv()
 from flask import Flask, jsonify, request, send_from_directory
 
 from content_filter import find_bad_words, find_gibberish_words, has_low_word_diversity
+from house_style import apply_house_style
 from openai_client import (
     DraftGenerationError,
     FollowupGenerationError,
     StyleCheckGenerationError,
     generate_draft,
     generate_followup,
-    generate_style_check,
 )
 from prompts import (
     ANSWER_LABELS,
     FOLLOWUP_SYSTEM_PROMPT,
-    STYLE_CHECK_SYSTEM_PROMPT,
     build_followup_user_prompt,
-    build_style_check_user_prompt,
     build_system_prompt,
     build_user_prompt,
 )
+from style_checker import check_report_text
 from tone_guide import find_tempered_words
 from word_count import count_words, get_range, is_in_range
 
@@ -97,6 +96,7 @@ def generate():
             {"error": "Something went wrong generating your draft. Please try again in a moment."}
         ), 502
 
+    draft, _ = apply_house_style(draft)
     word_count = count_words(draft)
     low, high = get_range(report_type)
 
@@ -159,10 +159,8 @@ def style_check():
     if find_bad_words(text):
         return jsonify({"error": "please remove inappropriate language before checking"}), 400
 
-    user_prompt = build_style_check_user_prompt(text)
-
     try:
-        result = generate_style_check(STYLE_CHECK_SYSTEM_PROMPT, user_prompt)
+        result = check_report_text(text)
     except StyleCheckGenerationError as exc:
         logger.error("Style check failed: %s", exc)
         return jsonify(
